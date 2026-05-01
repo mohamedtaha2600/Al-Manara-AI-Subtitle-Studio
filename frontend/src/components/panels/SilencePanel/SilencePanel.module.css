@@ -1,0 +1,289 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--container-bg, #1a1a1a);
+    color: var(--text-primary);
+}
+
+/* Tab Navigation */
+.tabNav {
+    display: flex;
+    gap: 2px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-secondary, #a3a3a3);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary, #fff);
+}
+
+.tab.tabActive {
+    background: rgba(249, 115, 22, 0.15);
+    color: var(--accent-orange, #f97316);
+}
+
+.badge {
+    background: var(--accent-orange, #f97316);
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* Tab Content */
+.tabContent {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.settingsTab,
+.segmentsTab,
+.logTab {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.settingsTab {
+    padding: 0;
+}
+
+/* List Header */
+.listHeader {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.listHeader h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--accent-orange, #f97316);
+}
+
+.stats {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+/* Segments List */
+.segmentsList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    opacity: 0.5;
+    text-align: center;
+    gap: 1rem;
+}
+
+.hint {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.segmentItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.8rem;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.segmentItem:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.segmentItem.active {
+    background-color: rgba(249, 115, 22, 0.15);
+    border-left-color: var(--accent-orange, #f97316);
+}
+
+.segmentInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+.segmentIndex {
+    opacity: 0.5;
+    min-width: 24px;
+}
+
+.timeRange {
+    display: flex;
+    gap: 0.5rem;
+    color: #a3a3a3;
+}
+
+.arrow {
+    opacity: 0.3;
+}
+
+.duration {
+    color: var(--accent-orange, #f97316);
+    background: rgba(249, 115, 22, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+/* Segment Actions */
+.segmentActions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.segmentItem:hover .segmentActions {
+    opacity: 1;
+}
+
+.actionBtn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-secondary, #a3a3a3);
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actionBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary, #fff);
+}
+
+.deleteBtn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deleteBtn:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Log Tab */
+.logList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.logItem {
+    display: flex;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    border-left: 3px solid transparent;
+}
+
+.logItem.info {
+    border-left-color: #3b82f6;
+}
+
+.logItem.success {
+    border-left-color: #22c55e;
+}
+
+.logItem.warning {
+    border-left-color: #f59e0b;
+}
+
+.logItem.error {
+    border-left-color: #ef4444;
+}
+
+.logTime {
+    color: var(--text-muted, #666);
+    font-family: monospace;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.logMessage {
+    flex: 1;
+    color: var(--text-secondary, #a3a3a3);
+}
+
+/* Scrollbar styling */
+.segmentsList::-webkit-scrollbar,
+.logList::-webkit-scrollbar {
+    width: 6px;
+}
+
+.segmentsList::-webkit-scrollbar-track,
+.logList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.segmentsList::-webkit-scrollbar-thumb,
+.logList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.segmentsList::-webkit-scrollbar-thumb:hover,
+.logList::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

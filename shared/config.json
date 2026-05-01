@@ -1,0 +1,40 @@
+{
+    "appName": "Al-Manara Creative Suite",
+    "version": "1.0.0",
+    "whisperModel": "medium",
+    "defaultLanguage": "auto",
+    "supportedLanguages": [
+        "ar",
+        "en",
+        "auto"
+    ],
+    "maxFileSize": "5GB",
+    "maxDuration": "3 hours",
+    "api": {
+        "baseUrl": "http://localhost:8000",
+        "timeout": 30000
+    },
+    "presets": {
+        "netflix": {
+            "fontFamily": "Arial",
+            "fontSize": 26,
+            "primaryColor": "#FFFFFF",
+            "outlineColor": "#000000",
+            "outlineWidth": 2
+        },
+        "youtube": {
+            "fontFamily": "Arial",
+            "fontSize": 28,
+            "primaryColor": "#FFFF00",
+            "outlineColor": "#000000",
+            "outlineWidth": 3
+        },
+        "tiktok": {
+            "fontFamily": "Arial",
+            "fontSize": 32,
+            "primaryColor": "#FFFFFF",
+            "outlineColor": "#FF0050",
+            "outlineWidth": 2
+        }
+    }
+}

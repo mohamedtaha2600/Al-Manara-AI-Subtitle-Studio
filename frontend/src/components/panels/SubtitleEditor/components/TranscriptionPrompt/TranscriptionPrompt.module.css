@@ -1,0 +1,198 @@
+.transcribePrompt {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+.headerArea {
+    flex: 0 0 auto;
+    padding: 20px 20px 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.promptIcon {
+    color: var(--accent-primary);
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.headerArea h3 {
+    font-size: 1rem;
+    font-family: var(--font-arabic);
+    color: var(--text-primary);
+    margin: 5px 0 0 0;
+}
+
+.fileName {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-arabic);
+    margin: 2px 0 0 0;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.6;
+}
+
+.sectionsContainer {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footerArea {
+    flex: 0 0 auto;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.summaryStats {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    opacity: 0.7;
+    font-size: 0.75rem;
+}
+
+.transcribeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 12px;
+    background: var(--accent-gradient);
+    color: white;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-family: var(--font-arabic);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+    width: 100%;
+}
+
+.transcribeBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.transcribeBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Node Contents - passed to SectionWrapper */
+.nodeContent {
+    padding: 5px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.controlGroup {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.controlLabel {
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.controlLabel span:last-child {
+    color: var(--accent-primary);
+    font-weight: bold;
+    font-family: monospace;
+}
+
+.rangeInput {
+    width: 100%;
+    accent-color: var(--accent-primary);
+    cursor: pointer;
+}
+
+.rangeLegend {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    opacity: 0.5;
+    margin-top: 4px;
+}
+
+/* VAD Section Styles */
+.vadSection {
+    margin-top: 5px;
+    padding: 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.vadSectionEnabled {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+}
+
+.vadHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.vadTitle {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.vadTitleEnabled {
+    color: #3b82f6;
+}
+
+.vadContent {
+    animation: fadeIn 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vadHint {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    font-style: italic;
+    margin: 5px 0 0 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

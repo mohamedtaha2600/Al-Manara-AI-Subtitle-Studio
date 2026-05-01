@@ -1,0 +1,76 @@
+@import "./Shared/Shared.module.css";
+
+.presets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    /* Ultra tight grid */
+    padding: 4px;
+    /* Ultra reduced */
+    border-top: 1px solid var(--border-color);
+}
+
+.presetCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5px;
+    /* Slight bump */
+    padding: 6px 1px;
+    /* Taller padding */
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.presetCard:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+}
+
+.presetIcon {
+    font-size: 0.8rem;
+    /* Tiny icon */
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.presetCard:hover .presetIcon {
+    color: var(--accent-primary);
+    transform: scale(1.05);
+}
+
+.presetCard.active {
+    background: rgba(67, 56, 202, 0.4);
+    border-color: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.presetCard.active .presetIcon {
+    color: #f59e0b;
+}
+
+.presetCard.active .presetName {
+    color: #fff;
+    font-weight: 700;
+}
+
+.presetName {
+    font-size: 0.52rem;
+    /* Slightly larger */
+    color: var(--text-secondary);
+    font-family: var(--font-arabic);
+    font-weight: 500;
+    transition: color 0.2s;
+    line-height: 1.2;
+}
+
+.presetCard:hover .presetName {
+    color: white;
+}

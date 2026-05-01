@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+  <!-- Razor/Scalpel blade -->
+  <path d="M4 20L18 6L20 4L18 4L4 18V20Z" fill="#ff6b6b" stroke="#cc5555" stroke-width="1"/>
+  <!-- Blade edge highlight -->
+  <path d="M5 19L17 7" stroke="#ffaaaa" stroke-width="0.5"/>
+  <!-- Handle -->
+  <rect x="2" y="18" width="4" height="4" rx="1" fill="#666" stroke="#444" stroke-width="0.5"/>
+</svg>

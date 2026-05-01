@@ -1,0 +1,30 @@
+# Models
+models/
+*.bin
+*.pt
+
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+
+# Node.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Assets & Cache
+cache/
+temp/
+shared/uploads/*
+shared/exports/*
+!shared/uploads/.gitkeep
+!shared/exports/.gitkeep
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db

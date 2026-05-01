@@ -1,0 +1,50 @@
+.timeline-editor-time-area {
+    position: relative;
+    height: var(--ruler-height, 32px);
+    flex: 0 0 auto;
+    box-sizing: border-box;
+}
+
+.timeline-editor-time-area .ReactVirtualized__Grid {
+    outline: none;
+}
+
+.timeline-editor-time-area .ReactVirtualized__Grid::-webkit-scrollbar {
+    display: none;
+}
+
+.timeline-editor-time-area-interact {
+    position: absolute;
+    cursor: pointer;
+    left: 0;
+    top: 0;
+}
+
+.timeline-editor-time-unit {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    box-sizing: content-box;
+    height: 4px !important;
+    bottom: 0 !important;
+    top: auto !important;
+}
+
+.timeline-editor-time-unit-big {
+    height: 8px !important;
+}
+
+.timeline-editor-time-unit-scale {
+    color: rgba(255, 255, 255, 0.6);
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translate(50%, -100%);
+}
+
+.timeline-editor-time-unit-first {
+    right: auto !important;
+    left: 100% !important;
+    transform: translate(6px, -100%) !important;
+    /* Start visible after the sidebar edge */
+    text-align: left;
+}

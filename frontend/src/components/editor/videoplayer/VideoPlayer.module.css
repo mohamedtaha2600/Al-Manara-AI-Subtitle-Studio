@@ -1,0 +1,174 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #0a0a0a;
+    position: relative;
+    user-select: none;
+    overflow: hidden;
+}
+
+.container.fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+}
+
+.videoWrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    min-height: 0;
+}
+
+/* Video and Subtitle Container - This wraps video and keeps subtitles on top */
+.videoInner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    max-height: 100%;
+    transform-origin: center center;
+}
+
+.video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* Zoom Indicator */
+.zoomIndicator {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 25;
+    pointer-events: none;
+}
+
+.video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* Subtitle Overlay Styles moved to VideoPlayerOverlay.module.css */
+
+/* Play Overlay */
+.playOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+}
+
+.container:hover .playOverlay {
+    opacity: 1;
+}
+
+.playOverlay svg {
+    width: 48px;
+    height: 48px;
+    opacity: 0.9;
+}
+
+.playOverlay span {
+    font-size: 0.75rem;
+    font-family: var(--font-arabic);
+}
+
+/* Audio Only Placeholder */
+.audioPlaceholder {
+    width: 640px;
+    height: 360px;
+    background: linear-gradient(135deg, #1e1e2e 0%, #0f172a 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.audioPlaceholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, var(--accent-primary-alpha) 0%, transparent 70%);
+    opacity: 0.15;
+}
+
+.audioIcon {
+    color: var(--accent-primary);
+    filter: drop-shadow(0 0 10px var(--accent-primary-alpha));
+    z-index: 1;
+}
+
+.audioTitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-family: var(--font-arabic);
+    z-index: 1;
+}
+
+.waves {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 20px;
+}
+
+.wave {
+    width: 3px;
+    background: var(--accent-primary);
+    border-radius: 1px;
+    animation: pulse 1.5s ease-in-out infinite;
+    opacity: 0.5;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        height: 8px;
+    }
+
+    50% {
+        height: 20px;
+    }
+}
+
+/* Controls Styles moved to VideoPlayerControls.module.css */
+
+/* Stacked Subtitle Styles moved to VideoPlayerOverlay.module.css */

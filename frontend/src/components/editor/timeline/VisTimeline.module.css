@@ -1,0 +1,344 @@
+.timelineContainer {
+    /* Variable Definitions */
+    --timeline-bg: #1e1e1e;
+    --timeline-grid-minor: #333;
+    --timeline-grid-major: #444;
+    --timeline-text: #e0e0e0;
+    --timeline-selection: rgba(59, 130, 246, 0.4);
+    --timeline-selection-border: #3b82f6;
+    --timeline-selection-glow: rgba(59, 130, 246, 0.6);
+
+    /* Subtitle Colors */
+    --item-subtitle-bg: rgba(139, 92, 246, 0.25);
+    --item-subtitle-border: #8b5cf6;
+    --item-subtitle-text: #ddd6fe;
+
+    /* Track Specific Colors */
+    --track-ar-bg: rgba(16, 185, 129, 0.25);
+    /* Emerald */
+    --track-ar-border: #10b981;
+    --track-en-bg: rgba(59, 130, 246, 0.25);
+    /* Blue */
+    --track-en-border: #3b82f6;
+    --track-default-bg: rgba(139, 92, 246, 0.25);
+    /* Purple */
+    --track-default-border: #8b5cf6;
+
+    /* Height Variables - Unified System */
+    --ruler-height: 32px;
+    --row-height-sub: 32px;
+    --row-height-vid: 50px;
+    --row-height-aud: 60px;
+    --sidebar-width: 160px;
+
+    /* Video Colors */
+    --item-video-bg: rgba(59, 130, 246, 0.2);
+    --item-video-border: #3b82f6;
+    --item-video-text: #bfdbfe;
+
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--timeline-bg);
+}
+
+.timelineBody {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.timelineEditorContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Sidebar Layer (Absolute Overlays) */
+.sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100%;
+    background-color: #1f1f1f;
+    border-right: 1px solid #333;
+    z-index: 200;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+    /* Crucial: Let clicks through to the ruler/editor */
+    box-sizing: border-box;
+}
+
+.sidebarHeader {
+    height: var(--ruler-height);
+    box-sizing: border-box;
+    background: #252525;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    pointer-events: auto;
+}
+
+.sidebarContent {
+    flex: 1;
+    overflow: hidden;
+    width: 100%;
+    pointer-events: auto;
+}
+
+.trackHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    font-size: 11px;
+    background: #1f1f1f;
+    box-sizing: border-box;
+    height: 100%;
+    transition: background 0.2s;
+}
+
+.selectedTrackHeader {
+    background: #2d3748 !important;
+    /* Premium Slate/Blue for targeting */
+    border-left: 3px solid var(--timeline-selection-border);
+    color: #fff !important;
+}
+
+.waveformLayer {
+    position: absolute;
+    bottom: 0;
+    left: 160px;
+    right: 0;
+    height: 60px;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+}
+
+.toolbar {
+    padding: 8px 16px;
+    display: flex;
+    gap: 8px;
+    background-color: #252525;
+    border-bottom: 1px solid #333;
+    align-items: center;
+}
+
+.trackInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.trackName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+.trackControls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.iconBtn {
+    background: transparent;
+    border: none;
+    color: #666;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.iconBtn:hover {
+    color: #eee;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.iconBtn.active {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.iconBtn.activeState {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.waveformActionWrapper {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.customAction {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--segment-bg, var(--track-default-bg));
+    border: 1px solid var(--segment-border, var(--track-default-border));
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.actionText {
+    color: white;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    user-select: none;
+    width: 100%;
+    display: block;
+}
+
+/* RTL Support for Arabic text */
+.actionText[dir="rtl"] {
+    text-align: right;
+    direction: rtl;
+}
+
+.inlineEditor {
+    width: 100%;
+    height: 100%;
+    background: #252525;
+    color: white;
+    border: none;
+    padding: 2px 4px;
+    font-size: 11px;
+    font-family: inherit;
+    resize: none;
+    outline: 2px solid var(--accent-primary);
+    border-radius: 2px;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.videoAction {
+    height: 100%;
+    width: 100%;
+    background: rgba(59, 130, 246, 0.4);
+    border: 1px solid #3b82f6;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bfdbfe;
+    font-size: 11px;
+    position: relative;
+}
+
+/* High-Visibility Selection */
+/* High-Visibility Selection - UNIFIED PREMIUM GLOW */
+.selectedAction {
+    /* Use the same logic as subtitles: Match the segment color or fallback to blue */
+    --glow-color: var(--segment-border, var(--timeline-selection-border));
+
+    /* CLEAN SELECTION - No White Glow */
+
+    /* Use the specific color for the border instead of white */
+    border: 1px solid var(--glow-color) !important;
+
+    /* Sharp outline instead of fuzzy glow */
+    box-shadow: 0 0 0 1px var(--glow-color) !important;
+
+    z-index: 1000 !important;
+    /* transform: scaleY(1.02); Optional: subtle pop */
+
+    /* Removed brightness filter to avoid "white" washout */
+    transition: all 0.2s ease-out;
+}
+
+.selectedAction .actionText {
+    color: #fff !important;
+    font-weight: 600 !important;
+    /* Removed text shadow */
+}
+
+/* User Specific Request: Highlight for Subtitles */
+.selectedSubtitle {
+    background: var(--segment-border, var(--accent-primary)) !important;
+    /* Remove white border */
+    border: 1px solid var(--segment-border) !important;
+    /* Remove white glow */
+    box-shadow: 0 0 0 1px var(--segment-border) !important;
+    /* filter: brightness(1.2); // Removed */
+}
+
+.selectedSubtitle .actionText {
+    color: #fff !important;
+    /* Changed to white for better contrast on solid bg */
+    font-weight: 700 !important;
+}
+
+/* Marquee Box */
+.marqueeBox {
+    position: absolute;
+    border: 1.5px solid #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+    z-index: 500;
+    pointer-events: none;
+    border-radius: 2px;
+}
+
+.snapGuideLine {
+    position: absolute;
+    width: 2px;
+    border-left: 1.5px dashed #6366f1;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.dragGhost {
+    position: absolute;
+    background: rgba(59, 130, 246, 0.3);
+    border: 1.5px dashed #3b82f6;
+    border-radius: 4px;
+    z-index: 600;
+    pointer-events: none;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+.hoverEffect:hover {
+    filter: brightness(1.3) contrast(1.1);
+    cursor: pointer;
+}
+
+.lockedOverlay {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) 10px, rgba(0, 0, 0, 0.2) 10px, rgba(0, 0, 0, 0.2) 20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+    z-index: 10;
+    pointer-events: none;
+}

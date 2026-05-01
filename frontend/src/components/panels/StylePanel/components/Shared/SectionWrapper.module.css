@@ -1,0 +1,93 @@
+.section {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    /* Minimal divider */
+    overflow: hidden;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+    /* Prevent squashing */
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+.sectionHeader {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    /* Compact padding */
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    /* Slightly elegant size */
+    font-family: var(--font-arabic);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sectionHeader:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.section[data-active="true"] .sectionHeader {
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* Grid Expansion Logic (Fixes Overlap) */
+.contentWrapper {
+    display: grid;
+    transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contentInner {
+    overflow: hidden;
+}
+
+/* Theme Accents (Subtle Glows) */
+.blue[data-active="true"] {
+    box-shadow: inset 2px 0 0 0 #3b82f6;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.05), transparent);
+}
+
+.purple[data-active="true"] {
+    box-shadow: inset 2px 0 0 0 #8b5cf6;
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.05), transparent);
+}
+
+.green[data-active="true"] {
+    box-shadow: inset 2px 0 0 0 #10b981;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.05), transparent);
+}
+
+.orange[data-active="true"] {
+    box-shadow: inset 2px 0 0 0 #f59e0b;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.05), transparent);
+}
+
+.pink[data-active="true"] {
+    box-shadow: inset 2px 0 0 0 #ec4899;
+    background: linear-gradient(90deg, rgba(236, 72, 153, 0.05), transparent);
+}
+
+.cyan[data-active="true"] {
+    box-shadow: inset 2px 0 0 0 #06b6d4;
+    background: linear-gradient(90deg, rgba(6, 182, 212, 0.05), transparent);
+}
+
+.slate[data-active="true"] {
+    box-shadow: inset 2px 0 0 0 var(--text-secondary);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent);
+}

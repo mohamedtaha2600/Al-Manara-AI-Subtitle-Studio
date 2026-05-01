@@ -1,0 +1,222 @@
+/* FontSection Specifics */
+/* Ensure we inherit from Shared */
+.sectionContent {
+    padding: 6px 8px;
+    /* Balanced padding */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Distinct gap between rows */
+    border-top: 1px solid var(--border-color);
+}
+
+.sectionContent label {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    margin-bottom: 3px;
+    display: block;
+    font-weight: 500;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.fontControls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex: 1;
+}
+
+.select {
+    flex: 1;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0 8px;
+    font-size: 0.75rem;
+    height: 28px;
+    /* Slightly taller for better readability */
+    cursor: pointer;
+    min-width: 0;
+    transition: all 0.2s;
+}
+
+.select:hover {
+    border-color: var(--text-secondary);
+}
+
+.select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Style options */
+.select option,
+.select optgroup {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 6px;
+    font-size: 0.85rem;
+}
+
+.iconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.iconBtn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.textInput {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 0 8px;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+    height: 26px;
+    width: 100%;
+}
+
+.textInput:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.sliderRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    height: 18px;
+}
+
+/* Polished Slider Styling */
+.rangeInput {
+    flex: 1;
+    height: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    appearance: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.rangeInput:hover {
+    background: var(--bg-hover);
+}
+
+.rangeInput::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--text-secondary);
+    border: 2px solid var(--bg-card);
+    box-shadow: 0 0 0 1px var(--border-color);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: -4px;
+}
+
+.rangeInput::-webkit-slider-thumb:hover {
+    background: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.rangeInput::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+}
+
+.sliderValue {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    min-width: 28px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+    margin: 4px 4px 0;
+    opacity: 0.5;
+}
+
+.toggleRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
+    background: var(--bg-tertiary);
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    height: 24px;
+    /* Shrunk from 28px */
+    width: fit-content;
+    align-self: flex-start;
+}
+
+.toggleBtn {
+    width: 28px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 0.75rem;
+    /* Shrunk */
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.toggleBtn:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
+.toggleBtn.active {
+    background: rgba(67, 56, 202, 0.6);
+    border-color: #f59e0b;
+    color: #fff;
+    font-weight: 700;
+}

@@ -1,0 +1,26 @@
+.editor {
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    width: 100%;
+    border: none;
+    outline: none;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 1.25rem;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-align: center;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.4;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    pointer-events: auto;
+}
+
+.editor:focus {
+    outline: 2px solid var(--accent-primary);
+    background: rgba(0, 0, 0, 0.9);
+}
