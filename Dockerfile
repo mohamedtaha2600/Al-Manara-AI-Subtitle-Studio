@@ -24,8 +24,8 @@ RUN mkdir -p shared/uploads shared/exports
 # Pre-download the base model to speed up first run (optional)
 RUN python3 download_model.py base
 
-# Expose port
-EXPOSE 8000
+# Hugging Face uses port 7860 by default
+EXPOSE 7860
 
-# Start the server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start the server on port 7860
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]
