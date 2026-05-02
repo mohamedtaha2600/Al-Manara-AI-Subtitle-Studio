@@ -6,8 +6,6 @@ import { generateSRT, generateVTT, generateTXT } from '@/utils/subtitleUtils'
 import styles from './ExportModal.module.css'
 import { API_BASE_URL } from '@/utils/config'
 
-
-
 export default function ExportModal() {
     const {
         segments: globalSegments,
@@ -16,17 +14,22 @@ export default function ExportModal() {
         tracks,
         activeTrackId,
         isExportModalOpen,
-        setExportModalOpen
+        setExportModalOpen,
+        isVideoUploading,
+        setExportProgressModalOpen
     } = useProjectStore()
+
     const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null)
+    const [isExporting, setIsExporting] = useState(false)
+    const [isCleaning, setIsCleaning] = useState(false)
+    const [isCleaned, setIsCleaned] = useState(false)
 
     // Determine available tracks
     const availableTracks = (tracks && tracks.length > 0)
         ? tracks
         : [{ id: 'default', name: 'Original', language: 'auto', segments: globalSegments }]
 
-    // Use activeTrackId from store as default (this is the Arabic track if selected)
-    // Then fallback to Arabic track, then first track
+    // Logic to select effective track
     const storeActiveTrack = availableTracks.find(t => t.id === activeTrackId)
     const arabicTrack = availableTracks.find(t => t.id?.includes('ar') || t.language === 'ar')
     const defaultTrack = storeActiveTrack || arabicTrack || availableTracks[0]
@@ -35,33 +38,6 @@ export default function ExportModal() {
     const availableSegments = effectiveTrack?.segments || globalSegments
 
     const handleClose = () => setExportModalOpen(false)
-
-    // Debug logging
-    console.log('[ExportModal] tracks:', tracks?.length, 'activeTrackId:', activeTrackId)
-    console.log('[ExportModal] effectiveTrack:', effectiveTrack?.id, effectiveTrack?.language)
-    console.log('[ExportModal] segments count:', availableSegments?.length, 'first text:', availableSegments?.[0]?.text?.substring(0, 50))
-
-    const [isCleaning, setIsCleaning] = useState(false)
-    const [isCleaned, setIsCleaned] = useState(false)
-
-    const handleCleanup = async () => {
-        if (!videoFile?.id || !confirm('هل أنت متأكد من حذف ملفات هذا المشروع من السيرفر؟\nسيتم حذف الفيديو الأصلي والمقاطع المؤقتة.')) return
-
-        setIsCleaning(true)
-        try {
-            const response = await fetch(`${API_BASE_URL}/cleanup/project/${videoFile.id}`, {
-                method: 'POST'
-            })
-            if (response.ok) {
-                setIsCleaned(true)
-                alert('تم تنظيف ملفات المشروع بنجاح')
-            }
-        } catch (error) {
-            console.error('Cleanup failed:', error)
-        } finally {
-            setIsCleaning(false)
-        }
-    }
 
     const handleDownload = (format: 'srt' | 'vtt' | 'txt') => {
         let content = ''
@@ -85,21 +61,17 @@ export default function ExportModal() {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
 
-        // Use project name with lang suffix
         const trackName = effectiveTrack.language || 'sub'
         const base = projectName || (videoFile?.name.split('.')[0] || 'subtitles')
         const baseName = `${base}_${trackName}`
 
         a.href = url
         a.download = `${baseName}.${format}`
-
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
     }
-
-    const [isExporting, setIsExporting] = useState(false)
 
     const handleRemoteExport = async (format: 'xml' | 'fcpxml' | 'burn-in') => {
         if (!videoFile?.id) return
@@ -118,14 +90,15 @@ export default function ExportModal() {
 
             if (response.ok) {
                 const data = await response.json()
-                if (data.downloadUrl) {
-                    // Check if downloadUrl is relative or absolute
+                
+                if (format === 'burn-in' && data.job_id) {
+                    setExportProgressModalOpen(true, data.job_id, 'burn-in')
+                    setExportModalOpen(false)
+                } else if (data.downloadUrl) {
                     const finalUrl = data.downloadUrl.startsWith('http') 
                         ? data.downloadUrl 
                         : `${API_BASE_URL.replace('/api', '')}${data.downloadUrl}`;
                     window.open(finalUrl, '_blank')
-                } else {
-                    alert('تم إنشاء الملف ولكن لم يتم العثور على رابط التنزيل')
                 }
             } else {
                 const err = await response.json()
@@ -136,6 +109,25 @@ export default function ExportModal() {
             alert('حدث خطأ أثناء الاتصال بالسيرفر')
         } finally {
             setIsExporting(false)
+        }
+    }
+
+    const handleCleanup = async () => {
+        if (!videoFile?.id || !confirm('هل أنت متأكد من حذف ملفات هذا المشروع من السيرفر؟')) return
+
+        setIsCleaning(true)
+        try {
+            const response = await fetch(`${API_BASE_URL}/cleanup/project/${videoFile.id}`, {
+                method: 'POST'
+            })
+            if (response.ok) {
+                setIsCleaned(true)
+                alert('تم تنظيف ملفات المشروع بنجاح')
+            }
+        } catch (error) {
+            console.error('Cleanup failed:', error)
+        } finally {
+            setIsCleaning(false)
         }
     }
 
@@ -150,7 +142,6 @@ export default function ExportModal() {
                 </div>
 
                 <div className={styles.content}>
-                    {/* Track Selector */}
                     {availableTracks.length > 1 && (
                         <div className={styles.section}>
                             <span className={styles.label}>اختر المسار / Select Track</span>
@@ -159,14 +150,9 @@ export default function ExportModal() {
                                     <button
                                         key={track.id}
                                         onClick={() => setSelectedTrackId(track.id)}
+                                        className={styles.trackBtn}
                                         style={{
-                                            padding: '8px 16px',
-                                            borderRadius: '6px',
-                                            border: '1px solid var(--border-color)',
                                             background: effectiveTrack.id === track.id ? 'var(--accent-primary)' : 'transparent',
-                                            color: 'white',
-                                            cursor: 'pointer',
-                                            fontSize: '0.9rem'
                                         }}
                                     >
                                         {track.name} ({track.language})
@@ -184,19 +170,16 @@ export default function ExportModal() {
                                 <span className={styles.ext}>SRT</span>
                                 <span className={styles.label}>Standard</span>
                             </button>
-
                             <button className={styles.exportBtn} onClick={() => handleDownload('vtt')}>
                                 <span className={styles.icon}>🌐</span>
                                 <span className={styles.ext}>VTT</span>
                                 <span className={styles.label}>Web</span>
                             </button>
-
                             <button className={styles.exportBtn} onClick={() => handleDownload('txt')}>
                                 <span className={styles.icon}>📝</span>
                                 <span className={styles.ext}>TXT</span>
                                 <span className={styles.label}>Text Only</span>
                             </button>
-
                             <button className={styles.exportBtn} onClick={() => handleRemoteExport('xml')}>
                                 <span className={styles.icon}>🎬</span>
                                 <span className={styles.ext}>XML</span>
@@ -209,41 +192,33 @@ export default function ExportModal() {
                         <span className={styles.icon}>🔥</span>
                         <h3>حرق الترجمة على الفيديو</h3>
                         <p className={styles.label}>Burn subtitles into video (Permanent)</p>
+                        
+                        {isVideoUploading && (
+                            <div className={styles.uploadWarning}>
+                                ⏳ جاري رفع الفيديو الأصلي لضمان الجودة... الرجاء الانتظار.
+                            </div>
+                        )}
+
                         <button
                             className={styles.burnBtn}
                             onClick={() => handleRemoteExport('burn-in')}
-                            disabled={isExporting}
+                            disabled={isExporting || isVideoUploading}
                         >
-                            {isExporting ? 'جاري التجهيز...' : 'بدء الحرق - Start Burn-in'}
+                            {isExporting ? '🔥 جاري حرق الترجمة...' : isVideoUploading ? 'بانتظار الرفع...' : 'بدء الحرق - Start Burn-in'}
                         </button>
                     </div>
 
-                    <div className={styles.cleanupSection} style={{
-                        marginTop: '12px',
-                        padding: '16px',
-                        background: 'rgba(239, 68, 68, 0.05)',
-                        border: '1px dashed rgba(239, 68, 68, 0.3)',
-                        borderRadius: 'var(--radius-md)',
-                        textAlign: 'center'
-                    }}>
+                    <div className={styles.cleanupSection}>
                         <span className={styles.icon}>🧹</span>
                         <h3>إنهاء المشروع وتنظيف الملفات</h3>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '8px 0' }}>
-                            Finish project and clear server storage
-                        </p>
                         <button
                             className={styles.cleanupBtn}
                             onClick={handleCleanup}
                             disabled={isCleaning || isCleaned}
                             style={{
-                                width: '100%',
-                                padding: '10px',
                                 background: isCleaned ? 'transparent' : 'rgba(239, 68, 68, 0.1)',
                                 color: isCleaned ? 'var(--text-muted)' : '#ef4444',
-                                border: `1px solid ${isCleaned ? 'var(--border-color)' : '#ef4444'}`,
-                                borderRadius: 'var(--radius-sm)',
-                                fontWeight: 600,
-                                cursor: isCleaned ? 'default' : 'pointer'
+                                border: `1px solid ${isCleaned ? 'var(--border-color)' : '#ef4444'}`
                             }}
                         >
                             {isCleaning ? 'جاري التنظيف...' : isCleaned ? '✅ تم التنظيف' : 'حذف ملفات المشروع - Clear Project Files'}

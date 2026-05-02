@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { getApiUrl } from '@/utils/config'
 import styles from './SettingsModal.module.css'
+import { Info } from 'lucide-react'
 
 interface ModelInfo {
     id: string

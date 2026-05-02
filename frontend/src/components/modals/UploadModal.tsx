@@ -9,6 +9,7 @@ import { useState, useRef, useCallback } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import styles from './UploadModal.module.css'
 import { API_BASE_URL, getApiUrl } from '@/utils/config'
+import { extractAudioFromVideo } from '@/utils/audioUtils'
 
 
 
@@ -60,60 +61,71 @@ export default function UploadModal() {
     }
 
     const handleFile = async (file: File) => {
-        // Validate file type by extension (more reliable than MIME)
-        const validExtensions = ['.mp4', '.mkv', '.avi', '.mov', '.webm', '.mp3', '.wav', '.m4a', '.flac']
+        // Validate file type
+        const videoExts = ['.mp4', '.mkv', '.avi', '.mov', '.webm']
+        const audioExts = ['.mp3', '.wav', '.m4a', '.flac']
         const ext = '.' + file.name.split('.').pop()?.toLowerCase()
-        if (!validExtensions.includes(ext)) {
+        
+        if (!videoExts.includes(ext) && !audioExts.includes(ext)) {
             setError('نوع الملف غير مدعوم. الرجاء رفع ملف فيديو أو صوت.')
             return
         }
 
         setIsUploading(true)
         setError(null)
-        addLog('info', `جاري رفع الملف: ${file.name}`)
+        setUploadProgress(0)
+        addLog('info', `🚀 بدء معالجة "توربو": ${file.name}`)
 
         try {
-            // Create FormData
-            const formData = new FormData()
-            formData.append('file', file)
+            const isVideo = videoExts.includes(ext)
+            const localUrl = URL.createObjectURL(file)
 
-            // Upload directly to backend (bypassing Next.js proxy for large files)
-            const response = await fetch(`${API_BASE_URL}/upload`, {
+            // Step 1: Immediate Preview
+            setVideoFile({
+                id: 'temp-' + Date.now(),
+                name: file.name,
+                url: localUrl,
+                duration: 0,
+                type: isVideo ? 'video' : 'audio'
+            })
+
+            let uploadFile: File | Blob = file
+            let audioFileId = ''
+
+            // Step 2: Turbo Extraction (if video)
+            if (isVideo) {
+                addLog('info', '🔹 جاري استخراج الصوت محلياً لتسريع العملية...')
+                const audioBlob = await extractAudioFromVideo(file)
+                uploadFile = new File([audioBlob], 'extracted_audio.wav', { type: 'audio/wav' })
+                addLog('success', '✅ تم استخراج الصوت بنجاح!')
+            }
+
+            // Step 3: Upload Audio/Main File for Transcription
+            addLog('info', '📤 جاري رفع مسار الصوت للمحرك...')
+            const formData = new FormData()
+            formData.append('file', uploadFile)
+
+            const uploadRes = await fetch(`${API_BASE_URL}/upload`, {
                 method: 'POST',
                 body: formData,
             })
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}))
-                throw new Error(errorData.detail || `فشل رفع الملف (${response.status})`)
+            if (!uploadRes.ok) throw new Error('فشل رفع مسار الصوت')
+            const uploadData = await uploadRes.json()
+            audioFileId = uploadData.file_id
+
+            // Update store with server ID (important for transcription)
+            const currentVideo = useProjectStore.getState().videoFile
+            if (currentVideo) {
+                setVideoFile({ ...currentVideo, id: audioFileId })
             }
 
-            const data = await response.json()
-            addLog('success', `تم رفع الملف بنجاح: ${data.file_id}`)
+            addLog('success', '✅ مسار الصوت جاهز للترجمة!')
 
-            // Detect Media Type
-            const videoExts = ['.mp4', '.mkv', '.avi', '.mov', '.webm']
-            const audioExts = ['.mp3', '.wav', '.m4a', '.flac']
-            const fileExt = '.' + file.name.split('.').pop()?.toLowerCase()
-
-            let mediaType: 'video' | 'audio' | 'unknown' = 'unknown'
-            if (videoExts.includes(fileExt)) mediaType = 'video'
-            else if (audioExts.includes(fileExt)) mediaType = 'audio'
-
-            // Create local URL for preview
-            const localUrl = URL.createObjectURL(file)
-
-            // Set video file in store
-            setVideoFile({
-                id: data.file_id,
-                name: file.name,
-                url: localUrl,
-                duration: 0, // Will be updated by video player
-                type: mediaType // Pass detected type
-            })
-
-            // Don't auto-transcribe - user will click "Transcribe" button
-            addLog('success', '✅ تم رفع الملف بنجاح! اضغط "ترجم الآن" للبدء')
+            // Step 4: Background Video Upload (if video)
+            if (isVideo) {
+                startBackgroundVideoUpload(file)
+            }
 
             handleClose()
         } catch (err) {
@@ -122,6 +134,53 @@ export default function UploadModal() {
         } finally {
             setIsUploading(false)
         }
+    }
+
+    const startBackgroundVideoUpload = (file: File) => {
+        const { setIsVideoUploading, setVideoUploadProgress, addLog } = useProjectStore.getState()
+        
+        setIsVideoUploading(true)
+        setVideoUploadProgress(0)
+        addLog('info', '☁️ بدأ رفع الفيديو الأصلي في الخلفية...')
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', `${API_BASE_URL}/upload`, true)
+
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100)
+                setVideoUploadProgress(percent)
+            }
+        }
+
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                try {
+                    const data = JSON.parse(xhr.responseText)
+                    const { videoFile, setVideoFile } = useProjectStore.getState()
+                    if (videoFile) {
+                        // Crucial: Update the videoFile ID to the real video ID (was audio ID)
+                        setVideoFile({ ...videoFile, id: data.file_id })
+                    }
+                    addLog('success', '✅ اكتمل رفع الفيديو الأصلي! التصدير متاح الآن بأقصى جودة.')
+                } catch (e) {
+                    addLog('warning', '⚠️ اكتمل الرفع ولكن فشل تحديث المعرف ID.')
+                }
+            } else {
+                addLog('warning', '⚠️ فشل رفع الفيديو الأصلي في الخلفية، قد لا يعمل التصدير بشكل صحيح.')
+            }
+            setIsVideoUploading(false)
+        }
+
+        xhr.onerror = () => {
+            addLog('error', '❌ انقطع اتصال رفع الفيديو في الخلفية.')
+            setIsVideoUploading(false)
+        }
+
+        xhr.send(formData)
     }
 
     const pollTranscriptionStatus = async (jobId: string) => {

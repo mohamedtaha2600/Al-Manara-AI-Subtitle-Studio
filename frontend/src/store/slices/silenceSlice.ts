@@ -179,14 +179,13 @@ export const createSilenceSlice: StateCreator<SilenceSlice> = (set, get) => {
                     })
                 })
 
-                if (!response.ok) {
-                    const err = await response.json()
-                    throw new Error(err.detail || 'Export failed')
-                }
-
                 const data = await response.json()
-                    ; (state as any).addLog?.('success', `✅ تم التصدير بنجاح: ${data.output_file}`)
-                    ; (state as any).addLog?.('info', `📁 تم حذف ${data.segments_removed} منطقة صامتة`)
+                if (data.job_id) {
+                    // Start unified progress tracking
+                    ;(state as any).setExportProgressModalOpen(true, data.job_id, 'silence')
+                } else {
+                    ;(state as any).addLog?.('success', `✅ تم التصدير بنجاح: ${data.output_file}`)
+                }
 
             } catch (error) {
                 console.error('[SilenceExport] Export failed:', error)

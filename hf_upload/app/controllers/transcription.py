@@ -291,7 +291,8 @@ async def process_transcription(
                         # 1. Try Argos (Offline) - If available
                         if can_use_argos:
                             try:
-                                translated = argostranslate.translate.translate(text, 'en', target_lang)
+                                # Fix: Use detected_lang instead of hardcoded 'en'
+                                translated = argostranslate.translate.translate(text, detected_lang, target_lang)
                                 if translated:
                                     return translated
                             except Exception:
@@ -301,14 +302,16 @@ async def process_transcription(
                         try:
                             # 2. Try Google (Online) - Only if NOT offline_mode
                             if not offline_mode:
-                                return GoogleTranslator(source='auto', target=target_lang).translate(text)
+                                # Fix: Use detected_lang for better accuracy
+                                return GoogleTranslator(source=detected_lang, target=target_lang).translate(text)
                         except Exception:
                             pass
                         
                         try:
                             # 3. Try MyMemory as fallback - Only if NOT offline_mode
                             if not offline_mode:
-                                return MyMemoryTranslator(source='en', target=target_lang).translate(text)
+                                # Fix: Use detected_lang instead of hardcoded 'en'
+                                return MyMemoryTranslator(source=detected_lang, target=target_lang).translate(text)
                         except Exception:
                             pass
                         

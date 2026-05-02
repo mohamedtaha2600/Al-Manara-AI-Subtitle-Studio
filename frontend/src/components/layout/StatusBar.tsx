@@ -25,7 +25,9 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
         setSettingsModalOpen,
         setExportModalOpen,
         gpuEnabled,
-        performanceMode
+        performanceMode,
+        isVideoUploading,
+        videoUploadProgress
     } = useProjectStore()
 
     const [backendStatus, setBackendStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking')
@@ -80,6 +82,18 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
 
     return (
         <div className={styles.statusBar}>
+            {/* Turbo Progress Line (Premium Overlay) */}
+            {isTranscribing && (
+                <div 
+                    className={styles.turboProgressLine} 
+                    style={{ 
+                        width: `${progress}%`,
+                        background: getProgressColor(),
+                        boxShadow: `0 0 10px ${getProgressColor()}`
+                    }} 
+                />
+            )}
+
             {/* Left: Connection Status */}
             <div className={styles.leftSection}>
                 {/* Backend Status */}
@@ -122,6 +136,17 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
                         <div className={`${styles.statusDot} ${styles.loading}`} />
                         <span className={styles.statusText}>
                             {modelStatus === 'loading' ? 'تحميل...' : 'معالجة...'}
+                        </span>
+                    </>
+                )}
+
+                {/* Background Upload Progress */}
+                {isVideoUploading && (
+                    <>
+                        <div className={styles.divider} />
+                        <div className={`${styles.statusDot} ${styles.loading}`} style={{ background: 'var(--accent-secondary)' }} />
+                        <span className={styles.statusText} style={{ color: 'var(--accent-secondary)' }}>
+                            جاري رفع الفيديو: {videoUploadProgress}%
                         </span>
                     </>
                 )}

@@ -13,6 +13,7 @@ import UploadModal from '@/components/modals/UploadModal'
 import ExportModal from '@/components/modals/ExportModal'
 import ImportModal from '@/components/modals/ImportModal'
 import SettingsModal from '@/components/modals/SettingsModal'
+import ExportProgressModal from '@/components/modals/ExportProgressModal'
 import SilenceControls from '@/components/panels/SilencePanel/components/SilenceControls'
 import SilenceSegmentsList from '@/components/panels/SilencePanel/components/SilenceSegmentsList'
 import { useProjectStore } from '@/store/useProjectStore'
@@ -271,6 +272,7 @@ export default function EditorInterface() {
             <ImportModal />
             <ExportModal />
             <SettingsModal />
+            <ExportProgressModal />
         </div>
     )
 }

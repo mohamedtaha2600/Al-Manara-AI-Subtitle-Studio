@@ -17,6 +17,9 @@ export interface UISlice {
     isImportModalOpen: boolean
     isExportModalOpen: boolean
     isSettingsModalOpen: boolean
+    isExportProgressModalOpen: boolean
+    exportJobId: string | null
+    exportType: 'burn-in' | 'silence' | null
 
     // Panels
     activePanel: 'subtitles' | 'style' | 'log' | 'silence' | 'enhance'
@@ -43,6 +46,7 @@ export interface UISlice {
     setImportModalOpen: (isOpen: boolean) => void
     setExportModalOpen: (isOpen: boolean) => void
     setSettingsModalOpen: (isOpen: boolean) => void
+    setExportProgressModalOpen: (isOpen: boolean, jobId?: string | null, type?: 'burn-in' | 'silence' | null) => void
     setActivePanel: (panel: 'subtitles' | 'style' | 'log' | 'silence' | 'enhance') => void
     setTimelineHeight: (height: number) => void
     setTimelineZoom: (zoom: number) => void
@@ -74,6 +78,9 @@ export const createUISlice: StateCreator<UISlice> = (set) => ({
     isImportModalOpen: false,
     isExportModalOpen: false,
     isSettingsModalOpen: false,
+    isExportProgressModalOpen: false,
+    exportJobId: null,
+    exportType: null,
 
     activePanel: 'subtitles',
     timelineHeight: 350,
@@ -101,6 +108,11 @@ export const createUISlice: StateCreator<UISlice> = (set) => ({
     setImportModalOpen: (isOpen) => set({ isImportModalOpen: isOpen }),
     setExportModalOpen: (isOpen) => set({ isExportModalOpen: isOpen }),
     setSettingsModalOpen: (isOpen) => set({ isSettingsModalOpen: isOpen }),
+    setExportProgressModalOpen: (isOpen, jobId = null, type = null) => set({ 
+        isExportProgressModalOpen: isOpen,
+        exportJobId: jobId,
+        exportType: type
+    }),
     setActivePanel: (panel) => set({ activePanel: panel }),
     setTimelineHeight: (height) => set({ timelineHeight: height }),
     setTimelineZoom: (zoom) => set({ timelineZoom: zoom }),
