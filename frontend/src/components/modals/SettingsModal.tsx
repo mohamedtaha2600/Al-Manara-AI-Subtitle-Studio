@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
+import { getApiUrl } from '@/utils/config'
 import styles from './SettingsModal.module.css'
 
 interface ModelInfo {
@@ -51,7 +52,7 @@ export default function SettingsModal() {
     const fetchModels = async () => {
         try {
             setIsLoading(true)
-            const res = await fetch('/api/models')
+            const res = await fetch(getApiUrl('models'))
             if (res.ok) {
                 const data = await res.json()
                 setInstalledModels(data.installed || [])

@@ -1,6 +1,7 @@
 'use client'
 
 import { useProjectStore } from '@/store/useProjectStore'
+import { getApiUrl } from '@/utils/config'
 
 export const useTranscriptionPolling = () => {
     const {
@@ -25,7 +26,7 @@ export const useTranscriptionPolling = () => {
             attempts++
 
             try {
-                const response = await fetch(`/api/transcribe/${jobId}`)
+                const response = await fetch(getApiUrl(`transcribe/${jobId}`))
                 const data = await response.json()
 
                 if (data.message !== lastMessage) {

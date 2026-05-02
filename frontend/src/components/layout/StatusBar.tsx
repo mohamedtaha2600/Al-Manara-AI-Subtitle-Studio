@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
+import { getApiUrl } from '@/utils/config'
 import styles from './StatusBar.module.css'
 
 
@@ -34,7 +35,7 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
     useEffect(() => {
         const checkBackend = async () => {
             try {
-                const response = await fetch('/api/health', { method: 'GET' })
+                const response = await fetch(getApiUrl('health'), { method: 'GET' })
                 if (response.ok || response.status === 404) {
                     // 404 is fine - means backend is running but no /health endpoint
                     setBackendStatus('connected')

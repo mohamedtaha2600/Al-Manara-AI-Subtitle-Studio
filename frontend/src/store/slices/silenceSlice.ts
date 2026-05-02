@@ -1,6 +1,7 @@
 import { StateCreator } from 'zustand'
 import { SilenceSegment, SilenceSettings } from './types'
 import { detectSilenceBrowser } from '@/utils/silenceDetector'
+import { API_BASE_URL } from '@/utils/config'
 
 export interface SilenceSlice {
     // State
@@ -108,7 +109,7 @@ export const createSilenceSlice: StateCreator<SilenceSlice> = (set, get) => {
                 ; (state as any).addLog?.('info', '🔍 جاري تحليل الصمت على السيرفر...')
                 set({ silenceProgress: 20 })
 
-                const response = await fetch('http://localhost:8000/api/silence/detect', {
+                const response = await fetch(`${API_BASE_URL}/silence/detect`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -165,7 +166,7 @@ export const createSilenceSlice: StateCreator<SilenceSlice> = (set, get) => {
             try {
                 ; (state as any).addLog?.('info', '📦 جاري تصدير الفيديو بدون صمت...')
 
-                const response = await fetch('http://localhost:8000/api/silence/export', {
+                const response = await fetch(`${API_BASE_URL}/silence/export`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

@@ -9,6 +9,7 @@ import { useState, useRef, useCallback } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { parseSRT, parseVTT } from '@/utils/subtitleUtils'
 import styles from './ImportModal.module.css'
+import { API_BASE_URL } from '@/utils/config'
 
 
 
@@ -124,8 +125,7 @@ export default function ImportModal() {
         const formData = new FormData()
         formData.append('file', file)
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mohamedtaha2600-almanara-ai-engine.hf.space/api'
-        const response = await fetch(`${apiUrl}/upload`, {
+        const response = await fetch(`${API_BASE_URL}/upload`, {
             method: 'POST',
             body: formData,
         })

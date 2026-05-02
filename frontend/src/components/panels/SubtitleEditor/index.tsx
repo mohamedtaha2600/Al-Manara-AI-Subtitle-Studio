@@ -7,6 +7,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useProjectStore, SubtitleSegment } from '@/store/useProjectStore'
+import { getApiUrl } from '@/utils/config'
 import { useVADPreview } from '@/hooks/useVADPreview'
 import { useTranscriptionPolling } from './hooks/useTranscriptionPolling'
 import { filterSubtitleText } from '@/utils/textUtils'
@@ -82,7 +83,7 @@ export default function SubtitleEditor() {
         if (!videoFile) return
         try {
             addLog('info', '🚀 جاري بدء الترجمة...')
-            const response = await fetch('/api/transcribe', {
+            const response = await fetch(getApiUrl('transcribe'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

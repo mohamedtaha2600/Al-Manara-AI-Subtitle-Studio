@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { generateSRT, generateVTT, generateTXT } from '@/utils/subtitleUtils'
 import styles from './ExportModal.module.css'
+import { API_BASE_URL } from '@/utils/config'
 
 
 
@@ -48,7 +49,7 @@ export default function ExportModal() {
 
         setIsCleaning(true)
         try {
-            const response = await fetch(`http://localhost:8000/api/cleanup/project/${videoFile.id}`, {
+            const response = await fetch(`${API_BASE_URL}/cleanup/project/${videoFile.id}`, {
                 method: 'POST'
             })
             if (response.ok) {
@@ -105,7 +106,7 @@ export default function ExportModal() {
 
         setIsExporting(true)
         try {
-            const response = await fetch('http://localhost:8000/api/export/generate', {
+            const response = await fetch(`${API_BASE_URL}/export/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -118,7 +119,11 @@ export default function ExportModal() {
             if (response.ok) {
                 const data = await response.json()
                 if (data.downloadUrl) {
-                    window.open(`http://localhost:8000${data.downloadUrl}`, '_blank')
+                    // Check if downloadUrl is relative or absolute
+                    const finalUrl = data.downloadUrl.startsWith('http') 
+                        ? data.downloadUrl 
+                        : `${API_BASE_URL.replace('/api', '')}${data.downloadUrl}`;
+                    window.open(finalUrl, '_blank')
                 } else {
                     alert('تم إنشاء الملف ولكن لم يتم العثور على رابط التنزيل')
                 }

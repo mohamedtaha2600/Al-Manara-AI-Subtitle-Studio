@@ -8,6 +8,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import styles from './UploadModal.module.css'
+import { API_BASE_URL } from '@/utils/config'
 
 
 
@@ -77,7 +78,7 @@ export default function UploadModal() {
             formData.append('file', file)
 
             // Upload directly to backend (bypassing Next.js proxy for large files)
-            const response = await fetch('http://localhost:8000/api/upload', {
+            const response = await fetch(`${API_BASE_URL}/upload`, {
                 method: 'POST',
                 body: formData,
             })
@@ -137,7 +138,7 @@ export default function UploadModal() {
             attempts++
 
             try {
-                const response = await fetch(`/api/transcribe/${jobId}`)
+                const response = await fetch(getApiUrl(`transcribe/${jobId}`))
                 const data = await response.json()
 
                 // Only update if message changed (avoid spam)
