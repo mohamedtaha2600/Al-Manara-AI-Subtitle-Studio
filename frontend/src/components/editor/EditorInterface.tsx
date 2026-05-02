@@ -97,14 +97,39 @@ export default function EditorInterface() {
         setStartResizeData(null)
     }, [])
 
+    const handleTouchResizeStart = (e: React.TouchEvent) => {
+        setIsResizing(true)
+        setStartResizeData({
+            mouseY: e.touches[0].clientY,
+            startHeight: timelineHeight
+        })
+    }
+
+    const handleTouchResizeMove = useCallback((e: TouchEvent) => {
+        if (!isResizing || !startResizeData) return
+        
+        const zoomFactor = window.innerWidth <= 768 ? 1.0 : 0.9
+        const deltaY = (e.touches[0].clientY - startResizeData.mouseY) / zoomFactor
+        const newHeight = startResizeData.startHeight - deltaY
+        
+        const windowHeightCss = window.innerHeight / zoomFactor
+        const clampedHeight = Math.max(120, Math.min(newHeight, windowHeightCss * 0.8))
+        
+        setTimelineHeight(clampedHeight)
+    }, [isResizing, startResizeData])
+
     useEffect(() => {
         if (isResizing) {
             window.addEventListener('mousemove', handleResizeMove)
             window.addEventListener('mouseup', handleResizeEnd)
+            window.addEventListener('touchmove', handleTouchResizeMove, { passive: false })
+            window.addEventListener('touchend', handleResizeEnd)
         }
         return () => {
             window.removeEventListener('mousemove', handleResizeMove)
             window.removeEventListener('mouseup', handleResizeEnd)
+            window.removeEventListener('touchmove', handleTouchResizeMove)
+            window.removeEventListener('touchend', handleResizeEnd)
         }
     }, [isResizing, handleResizeMove, handleResizeEnd])
 
@@ -242,7 +267,11 @@ export default function EditorInterface() {
                             </div>
 
                             <section className={styles.verticalTimelineSection} style={{ height: timelineHeight }}>
-                                <div className={styles.resizeDivider} onMouseDown={handleResizeStart} />
+                                <div 
+                                    className={styles.resizeDivider} 
+                                    onMouseDown={handleResizeStart} 
+                                    onTouchStart={handleTouchResizeStart}
+                                />
                                 <Timeline />
                             </section>
                         </div>
@@ -364,7 +393,11 @@ export default function EditorInterface() {
                         </div>
 
                         <section className={styles.timelineSection} style={{ height: timelineHeight }}>
-                            <div className={`${styles.resizeDivider} ${isResizing ? styles.dragging : ''}`} onMouseDown={handleResizeStart} />
+                            <div 
+                                className={`${styles.resizeDivider} ${isResizing ? styles.dragging : ''}`} 
+                                onMouseDown={handleResizeStart} 
+                                onTouchStart={handleTouchResizeStart}
+                            />
                             <Timeline />
                         </section>
                     </>

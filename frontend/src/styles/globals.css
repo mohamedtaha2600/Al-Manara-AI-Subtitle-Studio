@@ -93,7 +93,22 @@ body {
   user-select: none;
   -webkit-user-select: none;
   zoom: 0.9;
-  /* Default to 90% scale as requested */
+  /* Default to 90% scale as requested for desktop */
+}
+
+@media (max-width: 768px) {
+  body {
+    zoom: 1.0; /* Reset zoom on mobile for better native behavior */
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Touch friendly buttons */
+button, 
+.clickable {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Prevent image dragging */

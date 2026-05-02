@@ -132,3 +132,9 @@
     font-family: var(--font-arabic);
     border: 1px solid rgba(245, 158, 11, 0.2);
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none !important;
+    }
+}

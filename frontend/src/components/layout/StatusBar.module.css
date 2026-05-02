@@ -143,3 +143,20 @@
         opacity: 1;
     }
 }
+
+@media (max-width: 768px) {
+    .statusBar {
+        height: 30px;
+        padding: 0 8px;
+    }
+    .statusText, .divider, .stat {
+        display: none !important;
+    }
+    .progressContainer {
+        width: 100px;
+    }
+    .centerSection {
+        justify-content: flex-end;
+        padding-right: 10px;
+    }
+}
