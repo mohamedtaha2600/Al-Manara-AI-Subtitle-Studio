@@ -20,7 +20,6 @@ export interface UISlice {
 
     // Panels
     activePanel: 'subtitles' | 'style' | 'log' | 'silence' | 'enhance'
-    isRightPanelOpen: boolean
     timelineHeight: number
     timelineZoom: number
     activeTool: TimelineTool
@@ -45,7 +44,6 @@ export interface UISlice {
     setExportModalOpen: (isOpen: boolean) => void
     setSettingsModalOpen: (isOpen: boolean) => void
     setActivePanel: (panel: 'subtitles' | 'style' | 'log' | 'silence' | 'enhance') => void
-    setRightPanelOpen: (isOpen: boolean) => void
     setTimelineHeight: (height: number) => void
     setTimelineZoom: (zoom: number) => void
     setActiveTool: (tool: TimelineTool) => void
@@ -78,7 +76,6 @@ export const createUISlice: StateCreator<UISlice> = (set) => ({
     isSettingsModalOpen: false,
 
     activePanel: 'subtitles',
-    isRightPanelOpen: true,
     timelineHeight: 350,
     timelineZoom: 1,
     activeTool: 'select',
@@ -105,7 +102,6 @@ export const createUISlice: StateCreator<UISlice> = (set) => ({
     setExportModalOpen: (isOpen) => set({ isExportModalOpen: isOpen }),
     setSettingsModalOpen: (isOpen) => set({ isSettingsModalOpen: isOpen }),
     setActivePanel: (panel) => set({ activePanel: panel }),
-    setRightPanelOpen: (isOpen) => set({ isRightPanelOpen: isOpen }),
     setTimelineHeight: (height) => set({ timelineHeight: height }),
     setTimelineZoom: (zoom) => set({ timelineZoom: zoom }),
     setActiveTool: (tool) => set({ activeTool: tool }),
