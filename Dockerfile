@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy requirements and install (From root now)
-COPY requirements.txt .
+# Copy requirements and install
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the app code (From root/app now)
-COPY app ./app
+# Copy the app code
+COPY backend/app ./app
 COPY download_model.py .
 
 # Create storage directories

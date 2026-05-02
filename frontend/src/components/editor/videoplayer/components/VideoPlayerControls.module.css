@@ -9,6 +9,7 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 20;
+    direction: ltr !important;
 }
 
 .controls.visible {
@@ -78,10 +79,17 @@
 }
 
 .leftControls,
-.rightControls {
+.rightControls,
+.centerControls {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
+    gap: var(--space-sm);
+}
+
+.centerControls {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .controlBtn {

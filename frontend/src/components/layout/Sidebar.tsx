@@ -8,7 +8,7 @@ import {
     Sparkles,
     Plus,
     Upload,
-    Settings,
+    Download,
     LayoutDashboard
 } from 'lucide-react'
 
@@ -18,9 +18,9 @@ export default function Sidebar() {
         setActivePanel,
         setUploadModalOpen,
         setImportModalOpen,
-        setSettingsModalOpen,
+        setExportModalOpen,
         setCurrentView,
-        isSettingsModalOpen
+        currentView
     } = useProjectStore()
 
     const navItems = [
@@ -106,11 +106,12 @@ export default function Sidebar() {
             {/* Bottom Section */}
             <div className={styles.bottomSection}>
                 <button
-                    className={`${styles.navItem} ${isSettingsModalOpen ? styles.active : ''}`}
-                    title="الإعدادات"
-                    onClick={() => setSettingsModalOpen(true)}
+                    className={styles.navItem}
+                    title="تصدير"
+                    onClick={() => setExportModalOpen(true)}
                 >
-                    <Settings size={22} />
+                    <Download size={22} />
+                    <span className={styles.navLabel}>تصدير</span>
                 </button>
             </div>
         </aside>

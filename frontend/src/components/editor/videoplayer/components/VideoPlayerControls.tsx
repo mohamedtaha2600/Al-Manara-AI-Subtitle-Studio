@@ -1,4 +1,3 @@
-
 import React from 'react'
 import styles from './VideoPlayerControls.module.css'
 import { useProjectStore } from '@/store/useProjectStore'
@@ -122,51 +121,16 @@ export default function VideoPlayerControls() {
                 ))}
             </div>
 
-            {/* Control Buttons */}
+            {/* Control Buttons Grouped for professional workflow */}
             <div className={styles.controlsRow}>
+                {/* Left: Time & Volume */}
                 <div className={styles.leftControls}>
-                    <button className={styles.controlBtn} onClick={() => skipSeconds(-5)} title="5 ثواني للخلف (J)">
-                        <RotateCcw size={20} />
-                    </button>
-                    <button className={styles.playBtn} onClick={togglePlay} title="تشغيل/إيقاف (Space)">
-                        {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
-                    </button>
-                    <button className={styles.controlBtn} onClick={() => skipSeconds(5)} title="5 ثواني للأمام (L)">
-                        <RotateCw size={20} />
-                    </button>
                     <span className={styles.time}>
                         {formatTime(currentTime)} / {formatTime(duration)}
                     </span>
-                </div>
-
-                <div className={styles.rightControls}>
-                    {/* Fit Button */}
-                    <button
-                        className={`${styles.controlBtn} ${playerZoom !== 1 ? styles.active : ''}`}
-                        onClick={handleFit}
-                        title="ملائمة (0)"
-                    >
-                        <Maximize2 size={20} />
-                    </button>
-
-                    {/* Playback Speed */}
-                    <div className={styles.speedControl}>
-                        <select
-                            value={playerRate}
-                            onChange={(e) => setPlayerRate(parseFloat(e.target.value))}
-                            className={styles.speedSelect}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {speedOptions.map(speed => (
-                                <option key={speed} value={speed}>{speed}x</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Volume */}
                     <div className={styles.volumeControl}>
                         <button className={styles.controlBtn} onClick={toggleMute} title="كتم الصوت (M)">
-                            {playerIsMuted || playerVolume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                            {playerIsMuted || playerVolume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
                         </button>
                         <input
                             type="range"
@@ -178,8 +142,43 @@ export default function VideoPlayerControls() {
                             className={styles.volumeSlider}
                         />
                     </div>
+                </div>
 
-                    {/* Fullscreen */}
+                {/* Center: Main Playback Controls */}
+                <div className={styles.centerControls}>
+                    <button className={styles.controlBtn} onClick={() => skipSeconds(-5)} title="5 ثواني للخلف (J)">
+                        <RotateCcw size={20} />
+                    </button>
+                    <button className={styles.playBtn} onClick={togglePlay} title="تشغيل/إيقاف (Space)">
+                        {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
+                    </button>
+                    <button className={styles.controlBtn} onClick={() => skipSeconds(5)} title="5 ثواني للأمام (L)">
+                        <RotateCw size={20} />
+                    </button>
+                </div>
+
+                {/* Right: Tools & Settings */}
+                <div className={styles.rightControls}>
+                    <div className={styles.speedControl}>
+                        <select
+                            value={playerRate}
+                            onChange={(e) => setPlayerRate(parseFloat(e.target.value))}
+                            className={styles.speedSelect}
+                        >
+                            {speedOptions.map(speed => (
+                                <option key={speed} value={speed}>{speed}x</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <button
+                        className={`${styles.controlBtn} ${playerZoom !== 1 ? styles.active : ''}`}
+                        onClick={handleFit}
+                        title="ملائمة (0)"
+                    >
+                        <Maximize2 size={20} />
+                    </button>
+
                     <button className={styles.controlBtn} onClick={toggleFullscreen} title="ملء الشاشة (F)">
                         {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                     </button>
