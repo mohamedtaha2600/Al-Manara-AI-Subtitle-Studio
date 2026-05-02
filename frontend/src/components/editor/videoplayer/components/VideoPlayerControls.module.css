@@ -223,3 +223,32 @@
 .controlBtn.active {
     color: var(--accent-primary);
 }
+
+@media (max-width: 768px) {
+    .controls {
+        opacity: 1 !important;
+        padding: 12px;
+        background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    }
+    .progressBar {
+        height: 6px;
+    }
+    .progressBar::-webkit-slider-thumb {
+        width: 18px;
+        height: 18px;
+    }
+    .playBtn {
+        width: 48px;
+        height: 48px;
+    }
+    .volumeControl {
+        display: none; /* Mobile hardware buttons suffice */
+    }
+    .controlBtn {
+        width: 44px;
+        height: 44px;
+    }
+    .centerControls {
+        gap: 16px;
+    }
+}

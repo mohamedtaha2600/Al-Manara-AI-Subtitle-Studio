@@ -480,3 +480,50 @@
     color: #4ade80 !important;
     cursor: default;
 }
+
+@media (max-width: 768px) {
+    .modal {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+
+    .header {
+        padding: 16px 20px;
+    }
+
+    .modalBody {
+        padding: 20px;
+    }
+
+    .formatGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .burnSection {
+        padding: 16px;
+    }
+
+    .cleanupSection {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .cleanupBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .primaryExportBtn {
+        padding: 20px;
+    }
+
+    .btnText span {
+        font-size: 0.95rem;
+    }
+}

@@ -308,3 +308,24 @@
 .waveformContainer>div::part(scroll)::-webkit-scrollbar-corner {
     background: #1a1a1a;
 }
+
+@media (max-width: 768px) {
+    .toolbar {
+        flex-wrap: wrap;
+        padding: 8px;
+        gap: 8px;
+        height: auto;
+    }
+    .toolBtn, .zoomBtn {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        flex: 1;
+        justify-content: center;
+    }
+    .currentTimeValue {
+        font-size: 0.9rem;
+    }
+    .timelineWrapper::-webkit-scrollbar {
+        height: 14px;
+    }
+}

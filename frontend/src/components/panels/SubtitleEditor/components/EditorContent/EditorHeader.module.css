@@ -55,3 +55,18 @@
     background: var(--bg-hover);
     border-color: var(--border-hover);
 }
+
+@media (max-width: 768px) {
+    .searchBox {
+        padding: 8px 12px;
+    }
+
+    .searchBox input {
+        font-size: 0.9rem;
+    }
+
+    .replaceBtn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+}
