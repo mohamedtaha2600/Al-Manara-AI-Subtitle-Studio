@@ -61,6 +61,7 @@ class TranscriptionRequest(BaseModel):
     vad_threshold: Optional[float] = 0.5
     vad_segments: Optional[List[dict]] = None # New: [{"start": 0, "end": 2}, ...]
     initial_prompt: Optional[str] = None
+    hf_token: Optional[str] = None # For cloud diarization access
 
 
 class ModelsPathRequest(BaseModel):
@@ -166,7 +167,8 @@ async def start_transcription(
             vad_enabled=request.vad_enabled,
             vad_threshold=request.vad_threshold,
             vad_segments=request.vad_segments,
-            initial_prompt=request.initial_prompt
+            initial_prompt=request.initial_prompt,
+            hf_token=request.hf_token
         )
     )
     
@@ -196,7 +198,8 @@ async def process_transcription(
     vad_enabled: bool = False,
     vad_threshold: float = 0.5,
     vad_segments: Optional[List[dict]] = None,
-    initial_prompt: Optional[str] = None
+    initial_prompt: Optional[str] = None,
+    hf_token: Optional[str] = None
 ):
     """
     Background task to process transcription.
@@ -251,7 +254,7 @@ async def process_transcription(
                 job["message"] = "جاري تحديد المتكلمين... (Speaker Diarization)"
                 job["progress"] = 75.0
                 print("[DIARIZATION] Running speaker diarization...")
-                diarization_segments = diarize(file_path)
+                diarization_segments = diarize(file_path, hf_token=hf_token)
                 if diarization_segments:
                     source_segments = assign_speakers_to_segments(source_segments, diarization_segments)
                     speakers = set(s.get("speaker") for s in source_segments if s.get("speaker"))

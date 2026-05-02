@@ -13,25 +13,34 @@ from typing import List, Optional, Dict
 
 # Lazy-load pyannote to avoid import errors if not installed
 _pipeline = None
+_pipeline_token = None
 _pipeline_loaded = False
 
-def _get_pipeline():
+def _get_pipeline(hf_token: Optional[str] = None):
     """Lazy-load the diarization pipeline (cached after first load)."""
-    global _pipeline, _pipeline_loaded
-    if _pipeline_loaded:
+    global _pipeline, _pipeline_loaded, _pipeline_token
+    
+    # If already loaded with the same token (or no token change), return it
+    if _pipeline_loaded and (_pipeline_token == hf_token or not hf_token):
         return _pipeline
     
-    _pipeline_loaded = True  # Mark as attempted even if failed
+    # If we have a new token and already loaded one, we might need to reload 
+    # (but usually one token is enough for the session)
+    
+    _pipeline_loaded = True 
     
     try:
         from pyannote.audio import Pipeline
         import torch
         
-        token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_TOKEN")
+        # Priority: 1. Passed token, 2. Env Var
+        token = hf_token or os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_TOKEN")
+        
         if not token:
-            print("[DIARIZATION] ⚠️ HF_TOKEN not set — diarization disabled")
+            print("[DIARIZATION] ⚠️ No HF token provided — diarization disabled")
             return None
         
+        _pipeline_token = token
         print("[DIARIZATION] 🔄 Loading pyannote/speaker-diarization-3.1...")
         start = time.time()
         
@@ -70,18 +79,19 @@ def is_available() -> bool:
         return False
 
 
-def diarize(audio_path: str, num_speakers: Optional[int] = None) -> List[Dict]:
+def diarize(audio_path: str, num_speakers: Optional[int] = None, hf_token: Optional[str] = None) -> List[Dict]:
     """
     Run speaker diarization on an audio file.
     
     Args:
         audio_path: Path to audio file (wav/mp3/etc)
         num_speakers: Optional hint for number of speakers
+        hf_token: Optional HuggingFace token override
         
     Returns:
         List of diarization segments: [{start, end, speaker}, ...]
     """
-    pipeline = _get_pipeline()
+    pipeline = _get_pipeline(hf_token=hf_token)
     if pipeline is None:
         return []
     
