@@ -60,27 +60,33 @@ export default function Sidebar() {
                 <LayoutDashboard size={24} />
             </button>
 
-            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.05)', margin: '10px 0' }} />
+            {currentView !== 'dashboard' && (
+                <>
+                    <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.05)', margin: '10px 0' }} />
 
-            {/* Editor Actions */}
-            <button
-                className={styles.importBtn}
-                onClick={() => setUploadModalOpen(true)}
-                title="رفع فيديو جديد"
-            >
-                <Plus size={22} />
-            </button>
+                    {/* Editor Actions */}
+                    <button
+                        className={styles.importBtn}
+                        onClick={() => setUploadModalOpen(true)}
+                        title="رفع فيديو جديد"
+                    >
+                        <Plus size={22} />
+                    </button>
 
-            <button
-                className={styles.importBtn}
-                onClick={() => setImportModalOpen(true)}
-                title="استيراد ترجمة"
-                style={{ marginTop: '5px' }}
-            >
-                <Upload size={18} />
-            </button>
+                    {activePanel === 'subtitles' && (
+                        <button
+                            className={styles.importBtn}
+                            onClick={() => setImportModalOpen(true)}
+                            title="استيراد ترجمة"
+                            style={{ marginTop: '5px' }}
+                        >
+                            <Upload size={18} />
+                        </button>
+                    )}
 
-            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.05)', margin: '10px 0' }} />
+                    <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.05)', margin: '10px 0' }} />
+                </>
+            )}
 
             {/* Tool Sections */}
             <nav className={styles.nav}>
