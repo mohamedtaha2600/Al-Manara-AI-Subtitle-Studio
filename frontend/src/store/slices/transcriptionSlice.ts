@@ -51,7 +51,7 @@ export const createTranscriptionSlice: StateCreator<TranscriptionSlice> = (set, 
     },
 
     vadPreviewSettings: {
-        enabled: false,
+        enabled: true,
         threshold: 0.05,
         minSilenceMs: 250
     },

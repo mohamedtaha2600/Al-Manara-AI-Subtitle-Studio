@@ -16,6 +16,7 @@ import SettingsModal from '@/components/modals/SettingsModal'
 import ExportProgressModal from '@/components/modals/ExportProgressModal'
 import SilenceControls from '@/components/panels/SilencePanel/components/SilenceControls'
 import SilenceSegmentsList from '@/components/panels/SilencePanel/components/SilenceSegmentsList'
+import { EmptyState } from '@/components/panels/SubtitleEditor/components/EmptyState'
 import { useProjectStore } from '@/store/useProjectStore'
 
 // Icons
@@ -26,6 +27,8 @@ const UploadIcon = () => <svg width="48" height="48" viewBox="0 0 24 24" fill="n
 const ExportIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
 const ScissorsIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg>
 const SettingsIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+const ChevronRight = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+const ChevronLeft = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
 
 export default function EditorInterface() {
     // Timeline resize state
@@ -35,6 +38,7 @@ export default function EditorInterface() {
 
     // Sub-panel state for right panel tabs
     const [rightPanelTab, setRightPanelTab] = useState<'content' | 'settings' | 'log'>('content')
+    const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false)
 
     // Project Name Editing
     const [isEditingName, setIsEditingName] = useState(false)
@@ -51,7 +55,9 @@ export default function EditorInterface() {
         setUploadModalOpen,
         setExportModalOpen,
         isVideoUploading,
-        videoUploadProgress
+        videoUploadProgress,
+        editorLayout,
+        setEditorLayout
     } = useProjectStore()
 
     // Check if we're in silence mode
@@ -122,6 +128,11 @@ export default function EditorInterface() {
 
     // Render right panel content based on mode and active tab
     const renderRightPanelContent = () => {
+        // Global check: If no video is uploaded, show upload prompt regardless of tab
+        if (!videoFile) {
+            return <EmptyState />
+        }
+
         if (isSilenceMode) {
             // Silence Mode
             switch (rightPanelTab) {
@@ -152,127 +163,212 @@ export default function EditorInterface() {
     return (
         <div className={styles.container}>
             <Sidebar />
-            <main className={styles.mainContent}>
-                {/* Background Upload Notification */}
-                {isVideoUploading && (
-                    <div style={{
-                        background: 'rgba(245, 158, 11, 0.1)',
-                        borderBottom: '1px solid rgba(245, 158, 11, 0.2)',
-                        padding: '6px 20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '15px',
-                        fontSize: '0.8rem',
-                        zIndex: 100,
-                        backdropFilter: 'blur(10px)'
-                    }}>
-                        <div className="spinner-small" style={{ width: '12px', height: '12px', border: '2px solid #f59e0b', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                        <span style={{ color: '#f59e0b', fontWeight: 600 }}>يتم رفع الفيديو الأصلي في الخلفية... {Math.round(videoUploadProgress)}%</span>
-                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>(يمكنك البدء في العمل الآن، التصدير سيتوفر فور الاكتمال)</span>
-                    </div>
-                )}
+            <main className={`${styles.mainContent} ${editorLayout === 'vertical' ? styles.verticalMode : ''}`}>
+                {editorLayout === 'vertical' ? (
+                    /* Vertical Layout Mode */
+                    <div className={styles.verticalSplitWrapper}>
+                        {/* Left Side: Header + Controls + Timeline (Stacked) */}
+                        <div className={styles.verticalLeftStack}>
+                            <header className={styles.header}>
+                                <div className={styles.headerLeft}>
+                                    <div
+                                        className={styles.projectNameContainer}
+                                        onDoubleClick={() => {
+                                            setIsEditingName(true);
+                                            setEditedName(projectName);
+                                        }}
+                                        title="اضغط مرتين لتغيير الاسم"
+                                    >
+                                        {isEditingName ? (
+                                            <input
+                                                autoFocus
+                                                className={styles.projectNameInput}
+                                                value={editedName}
+                                                onChange={(e) => setEditedName(e.target.value)}
+                                                onBlur={() => {
+                                                    if (editedName.trim()) setProjectName(editedName);
+                                                    setIsEditingName(false);
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        if (editedName.trim()) setProjectName(editedName);
+                                                        setIsEditingName(false);
+                                                    } else if (e.key === 'Escape') {
+                                                        setIsEditingName(false);
+                                                    }
+                                                }}
+                                            />
+                                        ) : (
+                                            <h1 className={styles.projectNameText}>{projectName}</h1>
+                                        )}
+                                        {videoFile && (
+                                            <span className={styles.fileNameBadge}>
+                                                {videoFile.name}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className={styles.headerRight}>
+                                    <button 
+                                        className={styles.layoutToggleBtn}
+                                        onClick={() => setEditorLayout('horizontal')}
+                                        title="تبديل للوضع العرضي"
+                                    >
+                                        وضع عرضي
+                                    </button>
+                                </div>
+                            </header>
 
-                {/* Header */}
-                <header className={styles.header}>
-                    <div className={styles.headerLeft}>
-                        <div
-                            className={styles.projectNameContainer}
-                            onDoubleClick={() => {
-                                setIsEditingName(true);
-                                setEditedName(projectName);
-                            }}
-                            title="اضغط مرتين لتغيير الاسم"
-                        >
-                            {isEditingName ? (
-                                <input
-                                    autoFocus
-                                    className={styles.projectNameInput}
-                                    value={editedName}
-                                    onChange={(e) => setEditedName(e.target.value)}
-                                    onBlur={() => {
-                                        if (editedName.trim()) setProjectName(editedName);
-                                        setIsEditingName(false);
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            if (editedName.trim()) setProjectName(editedName);
-                                            setIsEditingName(false);
-                                        } else if (e.key === 'Escape') {
-                                            setIsEditingName(false);
-                                        }
-                                    }}
-                                />
-                            ) : (
-                                <h1 className={styles.projectNameText}>{projectName}</h1>
-                            )}
-                            {videoFile && (
-                                <span className={styles.fileNameBadge}>
-                                    {videoFile.name}
-                                </span>
-                            )}
-                        </div>
-                        {videoFile && (
-                            <span className={styles.badge}>تم التحميل</span>
-                        )}
-                    </div>
-                </header>
-
-                {/* Editor Area */}
-                <div className={styles.editorArea}>
-                    {/* Video Player Section (Moved to the Right in RTL) */}
-                    <section className={styles.playerSection}>
-                        {videoFile ? (
-                            <VideoPlayer />
-                        ) : (
-                            <div className={styles.emptyPlayer} onClick={() => setUploadModalOpen(true)}>
-                                <UploadIcon />
-                                <h2>ارفع ملف فيديو أو صوت</h2>
-                                <p>اسحب الملف هنا أو اضغط للاختيار</p>
-                                <span className={styles.formats}>MP4, MKV, AVI, MP3, WAV</span>
+                            <div className={styles.verticalEditorArea}>
+                                <aside className={`${styles.rightPanel} ${isRightPanelCollapsed ? styles.collapsed : ''} ${styles.verticalPanel}`}>
+                                    <button 
+                                        className={styles.collapseToggle} 
+                                        onClick={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
+                                    >
+                                        {isRightPanelCollapsed ? <ChevronLeft /> : <ChevronRight />}
+                                    </button>
+                                    <div className={styles.panelTabs}>
+                                        <button className={`${styles.panelTab} ${rightPanelTab === 'content' ? styles.active : ''}`} onClick={() => setRightPanelTab('content')}>
+                                            {tabLabels.content.icon} <span>{tabLabels.content.label}</span>
+                                        </button>
+                                        <button className={`${styles.panelTab} ${rightPanelTab === 'settings' ? styles.active : ''}`} onClick={() => setRightPanelTab('settings')}>
+                                            {tabLabels.settings.icon} <span>{tabLabels.settings.label}</span>
+                                        </button>
+                                    </div>
+                                    <div className={styles.panelContent}>
+                                        {renderRightPanelContent()}
+                                    </div>
+                                </aside>
                             </div>
-                        )}
-                    </section>
 
-                    {/* Right Panel - Tabs (Moved to the Left in RTL) */}
-                    <aside className={styles.rightPanel}>
-                        <div className={styles.panelTabs}>
-                            <button
-                                className={`${styles.panelTab} ${rightPanelTab === 'content' ? styles.active : ''}`}
-                                onClick={() => setRightPanelTab('content')}
-                            >
-                                {tabLabels.content.icon} {tabLabels.content.label}
-                            </button>
-                            <button
-                                className={`${styles.panelTab} ${rightPanelTab === 'settings' ? styles.active : ''}`}
-                                onClick={() => setRightPanelTab('settings')}
-                            >
-                                {tabLabels.settings.icon} {tabLabels.settings.label}
-                            </button>
-                            <button
-                                className={`${styles.panelTab} ${rightPanelTab === 'log' ? styles.active : ''}`}
-                                onClick={() => setRightPanelTab('log')}
-                            >
-                                {tabLabels.log.icon} {tabLabels.log.label}
-                            </button>
+                            <section className={styles.verticalTimelineSection} style={{ height: timelineHeight }}>
+                                <div className={styles.resizeDivider} onMouseDown={handleResizeStart} />
+                                <Timeline />
+                            </section>
                         </div>
-                        <div className={styles.panelContent}>
-                            {renderRightPanelContent()}
-                        </div>
-                    </aside>
-                </div>
 
-                {/* Timeline with Resize Divider */}
-                <section
-                    className={styles.timelineSection}
-                    style={{ height: timelineHeight }}
-                >
-                    <div
-                        className={`${styles.resizeDivider} ${isResizing ? styles.dragging : ''}`}
-                        onMouseDown={handleResizeStart}
-                    />
-                    <Timeline />
-                </section>
+                        {/* Right Side: Tall Preview */}
+                        <section className={styles.verticalPlayerSection}>
+                            <VideoPlayer />
+                            <div className={styles.verticalControlsOverlay}>
+                                <button 
+                                    className={styles.layoutToggleBtnSmall}
+                                    onClick={() => setEditorLayout('horizontal')}
+                                    title="تبديل للوضع العرضي"
+                                >
+                                    عرضي
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                ) : (
+                    /* Standard Horizontal Layout Mode */
+                    <>
+                        <header className={styles.header}>
+                            <div className={styles.headerLeft}>
+                                <div
+                                    className={styles.projectNameContainer}
+                                    onDoubleClick={() => {
+                                        setIsEditingName(true);
+                                        setEditedName(projectName);
+                                    }}
+                                    title="اضغط مرتين لتغيير الاسم"
+                                >
+                                    {isEditingName ? (
+                                        <input
+                                            autoFocus
+                                            className={styles.projectNameInput}
+                                            value={editedName}
+                                            onChange={(e) => setEditedName(e.target.value)}
+                                            onBlur={() => {
+                                                if (editedName.trim()) setProjectName(editedName);
+                                                setIsEditingName(false);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    if (editedName.trim()) setProjectName(editedName);
+                                                    setIsEditingName(false);
+                                                } else if (e.key === 'Escape') {
+                                                    setIsEditingName(false);
+                                                }
+                                            }}
+                                        />
+                                    ) : (
+                                        <h1 className={styles.projectNameText}>{projectName}</h1>
+                                    )}
+                                    {videoFile && (
+                                        <span className={styles.fileNameBadge}>
+                                            {videoFile.name}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className={styles.headerRight}>
+                                <button 
+                                    className={styles.layoutToggleBtn}
+                                    onClick={() => setEditorLayout('vertical')}
+                                    title="تبديل للوضع الطولي"
+                                >
+                                    وضع طولي
+                                </button>
+                            </div>
+                        </header>
+
+                        <div className={styles.editorArea}>
+                            <aside className={`${styles.rightPanel} ${isRightPanelCollapsed ? styles.collapsed : ''}`}>
+                                <button 
+                                    className={styles.collapseToggle} 
+                                    onClick={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
+                                    title={isRightPanelCollapsed ? "فتح القائمة" : "إغلاق القائمة"}
+                                >
+                                    {isRightPanelCollapsed ? <ChevronLeft /> : <ChevronRight />}
+                                </button>
+
+                                <div className={styles.panelTabs}>
+                                    <button
+                                        className={`${styles.panelTab} ${rightPanelTab === 'content' ? styles.active : ''}`}
+                                        onClick={() => setRightPanelTab('content')}
+                                    >
+                                        {tabLabels.content.icon} <span>{tabLabels.content.label}</span>
+                                    </button>
+                                    <button
+                                        className={`${styles.panelTab} ${rightPanelTab === 'settings' ? styles.active : ''}`}
+                                        onClick={() => setRightPanelTab('settings')}
+                                    >
+                                        {tabLabels.settings.icon} <span>{tabLabels.settings.label}</span>
+                                    </button>
+                                    <button
+                                        className={`${styles.panelTab} ${rightPanelTab === 'log' ? styles.active : ''}`}
+                                        onClick={() => setRightPanelTab('log')}
+                                    >
+                                        {tabLabels.log.icon} <span>{tabLabels.log.label}</span>
+                                    </button>
+                                </div>
+                                <div className={styles.panelContent}>
+                                    {renderRightPanelContent()}
+                                </div>
+                            </aside>
+
+                            <section className={styles.playerSection}>
+                                {videoFile ? (
+                                    <VideoPlayer />
+                                ) : (
+                                    <div className={styles.emptyPlayer} onClick={() => setUploadModalOpen(true)}>
+                                        <UploadIcon />
+                                        <h2>ارفع ملف فيديو أو صوت</h2>
+                                        <p>اسحب الملف هنا أو اضغط للاختيار</p>
+                                        <span className={styles.formats}>MP4, MKV, AVI, MP3, WAV</span>
+                                    </div>
+                                )}
+                            </section>
+                        </div>
+
+                        <section className={styles.timelineSection} style={{ height: timelineHeight }}>
+                            <div className={`${styles.resizeDivider} ${isResizing ? styles.dragging : ''}`} onMouseDown={handleResizeStart} />
+                            <Timeline />
+                        </section>
+                    </>
+                )}
                 <StatusBar />
             </main>
 

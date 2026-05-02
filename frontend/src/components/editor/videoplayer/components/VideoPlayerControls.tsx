@@ -11,7 +11,9 @@ import {
     VolumeX,
     Maximize,
     Minimize,
-    Maximize2
+    Maximize2,
+    Grid3X3,
+    LayoutGrid
 } from 'lucide-react'
 
 export default function VideoPlayerControls() {
@@ -32,7 +34,11 @@ export default function VideoPlayerControls() {
         playerZoom,
         setPlayerZoom,
         setPlayerPan,
-        playerShowControls
+        playerShowControls,
+        showGrid,
+        setShowGrid,
+        showSafeZones,
+        setShowSafeZones
     } = useProjectStore()
 
     const duration = videoFile?.duration || 0
@@ -125,9 +131,6 @@ export default function VideoPlayerControls() {
             <div className={styles.controlsRow}>
                 {/* Left: Time & Volume */}
                 <div className={styles.leftControls}>
-                    <span className={styles.time}>
-                        {formatTime(currentTime)} / {formatTime(duration)}
-                    </span>
                     <div className={styles.volumeControl}>
                         <button className={styles.controlBtn} onClick={toggleMute} title="كتم الصوت (M)">
                             {playerIsMuted || playerVolume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -159,6 +162,24 @@ export default function VideoPlayerControls() {
 
                 {/* Right: Tools & Settings */}
                 <div className={styles.rightControls}>
+                    {/* Pro Monitoring Toggles */}
+                    <div className={styles.proToggles}>
+                        <button 
+                            className={`${styles.miniControlBtn} ${showGrid ? styles.active : ''}`}
+                            onClick={() => setShowGrid(!showGrid)}
+                            title="عرض الشبكة (Rule of Thirds)"
+                        >
+                            <Grid3X3 size={16} />
+                        </button>
+                        <button 
+                            className={`${styles.miniControlBtn} ${showSafeZones ? styles.active : ''}`}
+                            onClick={() => setShowSafeZones(!showSafeZones)}
+                            title="عرض مناطق الأمان (Safe Zones)"
+                        >
+                            <LayoutGrid size={16} />
+                        </button>
+                    </div>
+
                     <div className={styles.speedControl}>
                         <select
                             value={playerRate}

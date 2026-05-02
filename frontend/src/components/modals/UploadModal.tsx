@@ -74,6 +74,21 @@ export default function UploadModal() {
         const isVideo = videoExts.includes(ext)
         const localUrl = URL.createObjectURL(file)
 
+        // 0. AUTO-DETECT ASPECT RATIO (Intelligent Layout)
+        if (isVideo) {
+            const tempVideo = document.createElement('video')
+            tempVideo.src = localUrl
+            tempVideo.onloadedmetadata = () => {
+                const { setEditorLayout } = useProjectStore.getState()
+                if (tempVideo.videoHeight > tempVideo.videoWidth) {
+                    setEditorLayout('vertical')
+                } else {
+                    setEditorLayout('horizontal')
+                }
+                URL.revokeObjectURL(tempVideo.src)
+            }
+        }
+
         // 1. INSTANT UI FEEDBACK
         setUploadModalOpen(false) // Close modal immediately
         setIsUploading(false)     // Reset local uploading state

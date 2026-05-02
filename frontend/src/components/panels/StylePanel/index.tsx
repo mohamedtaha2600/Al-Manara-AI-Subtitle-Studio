@@ -115,6 +115,7 @@ export default function StylePanel() {
                     currentStyle={style}
                     onToggle={handleToggleSection}
                     onSelectPreset={handleSelectPreset}
+                    dir="rtl"
                 />
 
                 {/* 2. Display Mode (Global/Structure) */}
@@ -124,6 +125,7 @@ export default function StylePanel() {
                     onToggle={handleToggleSection}
                     onSetStyle={handleStyleChange}
                     onRegenerate={regenerateSegments}
+                    dir="rtl"
                 />
 
                 {/* 3. Core Typography */}
@@ -134,6 +136,7 @@ export default function StylePanel() {
                     onToggle={handleToggleSection}
                     onSetStyle={handleStyleChange}
                     onLoadSystemFonts={loadSystemFonts}
+                    dir="rtl"
                 />
 
                 {/* 4. Colors */}
@@ -142,6 +145,7 @@ export default function StylePanel() {
                     style={style}
                     onToggle={handleToggleSection}
                     onSetStyle={handleStyleChange}
+                    dir="rtl"
                 />
 
                 {/* 5. Background & Effects */}
@@ -150,6 +154,7 @@ export default function StylePanel() {
                     style={style}
                     onToggle={handleToggleSection}
                     onSetStyle={handleStyleChange}
+                    dir="rtl"
                 />
 
                 {/* 6. Position */}
@@ -158,6 +163,7 @@ export default function StylePanel() {
                     style={style}
                     onToggle={handleToggleSection}
                     onSetStyle={handleStyleChange}
+                    dir="rtl"
                 />
 
                 {/* 7. Animation */}
@@ -166,6 +172,7 @@ export default function StylePanel() {
                     style={style}
                     onToggle={handleToggleSection}
                     onSetStyle={handleStyleChange}
+                    dir="rtl"
                 />
 
                 {/* 8. Visibility */}
@@ -174,6 +181,7 @@ export default function StylePanel() {
                     style={style}
                     onToggle={handleToggleSection}
                     onSetStyle={handleStyleChange}
+                    dir="rtl"
                 />
             </div>
 

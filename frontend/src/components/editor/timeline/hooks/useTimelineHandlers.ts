@@ -97,17 +97,44 @@ export function useTimelineHandlers(
             if (activeTool === 'hand') return;
 
             if (!isWaveform) {
-                const newSelection = [param.action.id];
-                if (isVideo) {
-                    const linkedWaveformId = param.action.id.replace('video-', 'waveform-');
-                    newSelection.push(linkedWaveformId);
+                let newSelection: string[] = [];
+                if (e.shiftKey) {
+                    // Additive Selection
+                    newSelection = [...multiSelectActionIds];
+                    if (!newSelection.includes(param.action.id)) {
+                        newSelection.push(param.action.id);
+                        if (isVideo) {
+                            const linkedWaveformId = param.action.id.replace('video-', 'waveform-');
+                            if (!newSelection.includes(linkedWaveformId)) newSelection.push(linkedWaveformId);
+                        }
+                    } else {
+                        // Toggle Off if already selected with shift
+                        newSelection = newSelection.filter(id => id !== param.action.id);
+                        if (isVideo) {
+                            const linkedWaveformId = param.action.id.replace('video-', 'waveform-');
+                            newSelection = newSelection.filter(id => id !== linkedWaveformId);
+                        }
+                    }
+                } else {
+                    // Single Selection
+                    newSelection = [param.action.id];
+                    if (isVideo) {
+                        const linkedWaveformId = param.action.id.replace('video-', 'waveform-');
+                        newSelection.push(linkedWaveformId);
+                    }
                 }
+
                 setSelectedActionId(param.action.id);
                 setMultiSelectActionIds(newSelection);
             } else {
+                // Waveform Interaction
                 const linkedVideoId = param.action.id.replace('waveform-', 'video-');
+                let newSelection = [param.action.id, linkedVideoId];
+                if (e.shiftKey) {
+                    newSelection = Array.from(new Set([...multiSelectActionIds, ...newSelection]));
+                }
                 setSelectedActionId(param.action.id);
-                setMultiSelectActionIds([param.action.id, linkedVideoId]);
+                setMultiSelectActionIds(newSelection);
             }
 
             // TOOL DISPATCHING
@@ -470,6 +497,9 @@ export function useTimelineHandlers(
             const startDelta = roundTime(roundedStart - seg.start);
             const endDelta = roundTime(roundedEnd - seg.end);
 
+            // Minimum duration check (Respect handles)
+            if (roundedEnd <= roundedStart + 0.05) return false;
+
             updateSegment(segId, { start: roundedStart, end: roundedEnd });
 
             if (state.activeTool === 'ripple') {
@@ -504,8 +534,8 @@ export function useTimelineHandlers(
         if (activeTool === 'hand') return;
 
         if (activeTool === 'text') {
-            if (param.row.id === 'subtitle-track') {
-                addSegmentAt(param.time);
+            if (param.row.id === 'subtitle-track' || param.row.id.startsWith('track-')) {
+                addSegmentAt(param.time, param.row.id);
                 return;
             }
         }

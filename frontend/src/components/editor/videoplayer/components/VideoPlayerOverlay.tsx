@@ -16,7 +16,11 @@ export default function VideoPlayerOverlay({
     onSubtitleMouseDown
 }: VideoPlayerOverlayProps) {
     const [editingInfo, setEditingInfo] = useState<{ trackId: string, segmentId: number } | null>(null)
-    const updateSegment = useProjectStore(state => state.updateSegment)
+    const { 
+        updateSegment, 
+        showGrid, 
+        showSafeZones 
+    } = useProjectStore()
 
     const handleDoubleClick = (e: React.MouseEvent, trackId: string, segmentId: number) => {
         e.stopPropagation()
@@ -125,6 +129,26 @@ export default function VideoPlayerOverlay({
 
     return (
         <div className={styles.subtitleLayer}>
+            {/* 1. Professional Grid Overlay (Rule of Thirds) */}
+            {showGrid && (
+                <div className={styles.gridLayer}>
+                    <div className={styles.gridLineH} style={{ top: '33.33%' }} />
+                    <div className={styles.gridLineH} style={{ top: '66.66%' }} />
+                    <div className={styles.gridLineV} style={{ left: '33.33%' }} />
+                    <div className={styles.gridLineV} style={{ left: '66.66%' }} />
+                    <div className={styles.centerMark} />
+                </div>
+            )}
+
+            {/* 2. Professional Safe Zones (Title & Action Safe) */}
+            {showSafeZones && (
+                <div className={styles.safeZones}>
+                    <div className={styles.actionSafe} title="Action Safe (90%)" />
+                    <div className={styles.titleSafe} title="Title Safe (80%)" />
+                </div>
+            )}
+
+            {/* 3. Subtitles */}
             {activeSubtitles.map((item) => {
                 const { segment, style: trackStyle, trackId } = item
                 // Compute merged style: segment overrides track

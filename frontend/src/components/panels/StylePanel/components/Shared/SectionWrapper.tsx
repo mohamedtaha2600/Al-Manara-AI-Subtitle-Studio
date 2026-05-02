@@ -25,16 +25,23 @@ export const SectionWrapper: React.FC<SectionWrapperProps> = ({
     theme = 'slate',
     dir = 'ltr'
 }) => {
+    const isRTL = dir === 'rtl'
+
     return (
-        <section className={`${styles.section} ${styles[theme]}`} data-active={isActive}>
+        <section 
+            className={`${styles.section} ${styles[theme]}`} 
+            data-active={isActive}
+            style={{ direction: dir }}
+        >
             <button
                 className={styles.sectionHeader}
                 onClick={() => onToggle(id)}
-                style={{ flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}
+                style={{ flexDirection: 'row' }} // Let direction: rtl handle the flip
             >
-                <span className={styles.headerTitle} style={{ display: 'flex', alignItems: 'center', gap: 8, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
-                    {icon} {title}
-                </span>
+                <div className={styles.headerTitle} style={{ gap: 8 }}>
+                    {icon}
+                    <span>{title}</span>
+                </div>
                 <ChevronIcon open={isActive} />
             </button>
             <div className={styles.contentWrapper} style={{ gridTemplateRows: isActive ? '1fr' : '0fr' }}>

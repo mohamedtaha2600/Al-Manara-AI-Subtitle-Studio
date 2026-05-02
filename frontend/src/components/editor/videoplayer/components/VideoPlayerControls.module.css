@@ -4,8 +4,8 @@
     bottom: 0;
     left: 0;
     right: 0;
-    padding: var(--space-xs) var(--space-sm);
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+    padding: var(--space-sm);
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.95));
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 20;
@@ -19,8 +19,10 @@
 /* Progress Container */
 .progressContainer {
     position: relative;
-    margin-bottom: var(--space-xs);
-    height: 4px;
+    margin-bottom: var(--space-sm);
+    height: 20px;
+    display: flex;
+    align-items: center;
 }
 
 .progressBar {
@@ -63,8 +65,9 @@
 /* Segment Markers */
 .segmentMarker {
     position: absolute;
-    top: 0;
-    height: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 4px;
     background: rgba(99, 102, 241, 0.4);
     border-radius: 2px;
     pointer-events: none;
@@ -182,4 +185,41 @@
 .speedSelect option {
     background: var(--bg-secondary);
     color: var(--text-primary);
+}
+
+.proToggles {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    margin-right: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.miniControlBtn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-xs);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.miniControlBtn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.miniControlBtn.active {
+    color: var(--accent-primary);
+    background: rgba(99, 102, 241, 0.15);
+}
+
+.controlBtn.active {
+    color: var(--accent-primary);
 }

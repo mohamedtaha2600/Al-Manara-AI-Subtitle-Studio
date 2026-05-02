@@ -2,6 +2,7 @@
 
 import React from 'react'
 import styles from './TranscriptionPrompt.module.css'
+import { Zap, Cpu, WifiOff, Type, SpellCheck, AlertCircle, Info } from 'lucide-react'
 
 interface EngineNodeProps {
     includeDiacritics: boolean
@@ -22,114 +23,103 @@ export const EngineNode: React.FC<EngineNodeProps> = ({
     onUpdateSettings,
     onUpdateSystemSetting
 }) => {
+    const isTurbo = performanceMode === 'speed'
+
     return (
         <div className={styles.nodeContent}>
-            {/* Visual Settings */}
+            {/* 1. LINGUISTIC ENGINE */}
             <div className={styles.controlGroup}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, cursor: 'pointer', fontSize: '0.85rem' }}>
+                <div className={styles.groupHeader}>
+                    <SpellCheck size={14} className={styles.groupIcon} />
+                    <span>المعالجة اللغوية</span>
+                </div>
+                
+                <div className={styles.optionsGrid}>
+                    <label className={`${styles.smartToggle} ${includeDiacritics ? styles.active : ''}`}>
                         <input
                             type="checkbox"
+                            hidden
                             checked={includeDiacritics}
                             onChange={(e) => onUpdateSettings({ includeDiacritics: e.target.checked })}
                         />
-                        <span dir="rtl">
-                            إضافة التشكيل تلقائياً
-                            <span dir="ltr" style={{ display: 'inline-block', marginRight: '6px', opacity: 0.8 }}>(Diacritics)</span>
-                        </span>
+                        <Type size={16} />
+                        <div className={styles.toggleText}>
+                            <span className={styles.mainLabel}>إضافة التشكيل</span>
+                            <span className={styles.subLabel}>Diacritics</span>
+                        </div>
                     </label>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, cursor: 'pointer', fontSize: '0.85rem' }}>
+
+                    <label className={`${styles.smartToggle} ${includePunctuation ? styles.active : ''}`}>
                         <input
                             type="checkbox"
+                            hidden
                             checked={includePunctuation}
                             onChange={(e) => onUpdateSettings({ includePunctuation: e.target.checked })}
                         />
-                        <span dir="rtl">
-                            ترقيم تلقائي
-                            <span dir="ltr" style={{ display: 'inline-block', marginRight: '6px', opacity: 0.8 }}>(Punctuation)</span>
-                        </span>
+                        <SpellCheck size={16} />
+                        <div className={styles.toggleText}>
+                            <span className={styles.mainLabel}>ترقيم تلقائي</span>
+                            <span className={styles.subLabel}>Punctuation</span>
+                        </div>
                     </label>
                 </div>
             </div>
 
-            {/* System Settings */}
-            <div style={{ padding: '5px' }}>
-                <p style={{ fontSize: '0.7rem', opacity: 0.5, marginBottom: 10, fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 5, textAlign: 'right' }}>
-                    تحسينات الأداء (Optimization)
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {/* Turbo Mode Toggle */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row-reverse' }}>
-                        <span style={{ fontSize: '0.75rem' }} dir="rtl">
-                            ⚡ وضع السرعة القصوى
-                            <span dir="ltr" style={{ display: 'inline-block', marginRight: '4px', opacity: 0.8 }}>(Turbo)</span>
-                        </span>
-                        <button
-                            onClick={() => onUpdateSystemSetting('performanceMode', performanceMode === 'speed' ? 'accuracy' : 'speed')}
-                            style={{
-                                padding: '4px 10px',
-                                borderRadius: 4,
-                                fontSize: '0.65rem',
-                                background: performanceMode === 'speed' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)',
-                                color: performanceMode === 'speed' ? 'white' : 'inherit',
-                                border: 'none',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {performanceMode === 'speed' ? 'مفعل 🔥' : 'معطل'}
-                        </button>
-                    </div>
+            {/* 2. PERFORMANCE & HARDWARE */}
+            <div className={styles.controlGroup}>
+                <div className={styles.groupHeader}>
+                    <Cpu size={14} className={styles.groupIcon} />
+                    <span>تحسينات الأداء والعتاد</span>
+                </div>
 
-                    {/* Turbo Warning */}
-                    {(performanceMode === 'speed' && (includePunctuation || includeDiacritics)) && (
-                        <p style={{ fontSize: '0.65rem', color: '#f59e0b', margin: '-4px 0 4px', textAlign: 'right', padding: '0 4px', opacity: 0.9 }} dir="rtl">
-                            ⚠️ وضع السرعة "Turbo" قد يقلل من دقة الترقيم
-                        </p>
-                    )}
+                <div className={styles.systemStack}>
+                    {/* Turbo Mode */}
+                    <label className={`${styles.systemRow} ${isTurbo ? styles.turboRow : ''}`}>
+                        <input
+                            type="checkbox"
+                            hidden
+                            checked={isTurbo}
+                            onChange={() => onUpdateSystemSetting('performanceMode', isTurbo ? 'accuracy' : 'speed')}
+                        />
+                        <div className={styles.systemInfo}>
+                            <div className={styles.systemLabel}>
+                                <Zap size={14} className={isTurbo ? styles.pulseIcon : ''} />
+                                <span>وضع السرعة القصوى (Turbo)</span>
+                            </div>
+                            {isTurbo && (includePunctuation || includeDiacritics) && (
+                                <p className={styles.inlineWarning}>
+                                    <AlertCircle size={10} /> قد تقل الدقة قليلاً
+                                </p>
+                            )}
+                        </div>
+                        <div className={styles.stateBtnContainer}>
+                            <span className={`${styles.stateBtn} ${isTurbo ? styles.btnTurbo : ''}`}>
+                                {isTurbo ? 'مفعل' : 'معطل'}
+                            </span>
+                        </div>
+                    </label>
 
-                    {/* GPU Toggle */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row-reverse' }}>
-                        <span style={{ fontSize: '0.75rem' }} dir="rtl">
-                            🎮 معالجة بواسطة
-                            <span dir="ltr" style={{ display: 'inline-block', marginRight: '4px', opacity: 0.8 }}>(GPU)</span>
-                        </span>
-                        <button
-                            onClick={() => onUpdateSystemSetting('gpuEnabled', !gpuEnabled)}
-                            style={{
-                                padding: '4px 10px',
-                                borderRadius: 4,
-                                fontSize: '0.65rem',
-                                background: gpuEnabled ? '#22c55e' : 'rgba(255,255,255,0.1)',
-                                color: gpuEnabled ? 'white' : 'inherit',
-                                border: 'none',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {gpuEnabled ? 'NVIDIA ON' : 'CPU Only'}
-                        </button>
-                    </div>
+                    {/* GPU Processing */}
+                    <label className={`${styles.systemRow} ${gpuEnabled ? styles.gpuRow : ''}`}>
+                        <input
+                            type="checkbox"
+                            hidden
+                            checked={gpuEnabled}
+                            onChange={() => onUpdateSystemSetting('gpuEnabled', !gpuEnabled)}
+                        />
+                        <div className={styles.systemInfo}>
+                            <div className={styles.systemLabel}>
+                                <Cpu size={14} />
+                                <span>معالجة بواسطة الجرافيك (GPU)</span>
+                            </div>
+                        </div>
+                        <div className={styles.stateBtnContainer}>
+                            <span className={`${styles.stateBtn} ${gpuEnabled ? styles.btnGpu : ''}`}>
+                                {gpuEnabled ? 'NVIDIA ON' : 'CPU Only'}
+                            </span>
+                        </div>
+                    </label>
 
-                    {/* Offline Toggle */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row-reverse' }}>
-                        <span style={{ fontSize: '0.75rem' }} dir="rtl">
-                            📴 العمل بدون إنترنت
-                            <span dir="ltr" style={{ display: 'inline-block', marginRight: '4px', opacity: 0.8 }}>(Offline)</span>
-                        </span>
-                        <button
-                            onClick={() => onUpdateSystemSetting('offlineMode', !offlineMode)}
-                            style={{
-                                padding: '4px 10px',
-                                borderRadius: 4,
-                                fontSize: '0.65rem',
-                                background: offlineMode ? '#6366f1' : 'rgba(255,255,255,0.1)',
-                                color: offlineMode ? 'white' : 'inherit',
-                                border: 'none',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {offlineMode ? 'Local Only' : 'Cloud Hybrid'}
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

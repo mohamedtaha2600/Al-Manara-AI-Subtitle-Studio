@@ -11,13 +11,15 @@ interface AnimationSectionProps {
     style: any
     onToggle: (id: string) => void
     onSetStyle: (style: any) => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const AnimationSection: React.FC<AnimationSectionProps> = ({
     isActive,
     style,
     onToggle,
-    onSetStyle
+    onSetStyle,
+    dir = 'ltr'
 }) => {
     return (
         <SectionWrapper
@@ -26,6 +28,7 @@ export const AnimationSection: React.FC<AnimationSectionProps> = ({
             icon={<Sparkles size={18} />}
             isActive={isActive}
             onToggle={onToggle}
+            dir={dir}
         >
             <div className={styles.sectionContent}>
                 <div className={styles.animationGrid}>

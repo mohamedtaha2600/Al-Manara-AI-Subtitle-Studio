@@ -165,6 +165,7 @@ const TimelineAction: React.FC<TimelineActionProps> = ({ action, row, isHidden, 
                     pixelsPerSecond={timelineZoom * 160}
                     height={60}
                     scrollLeft={0} // Within action, we don't need scroll offset as lib handles it
+                    isSelected={isSelected}
                     segments={segments}
                     silenceSegments={detectedSilence}
                     vadSegments={action.data?.vadSegments}

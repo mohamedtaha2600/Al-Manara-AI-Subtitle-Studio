@@ -38,11 +38,12 @@ export default function Sidebar() {
             id: 'enhance',
             icon: <Sparkles size={22} />,
             labelAr: 'تحسين',
+            isComingSoon: true
         },
     ]
 
     return (
-        <aside className={styles.sidebar}>
+        <aside className={styles.sidebar} suppressHydrationWarning>
             {/* Logo / Home */}
             <div className={styles.logoContainer} onClick={() => setCurrentView('dashboard')} style={{ cursor: 'pointer' }}>
                 <ManaraIcon />
@@ -93,12 +94,20 @@ export default function Sidebar() {
                 {navItems.map((item) => (
                     <button
                         key={item.id}
-                        className={`${styles.navItem} ${activePanel === item.id ? styles.active : ''}`}
-                        onClick={() => setActivePanel(item.id as any)}
-                        title={item.labelAr}
+                        className={`
+                            ${styles.navItem} 
+                            ${activePanel === item.id ? styles.active : ''}
+                            ${item.isComingSoon ? styles.comingSoon : ''}
+                        `}
+                        onClick={() => !item.isComingSoon && setActivePanel(item.id as any)}
+                        title={item.isComingSoon ? 'جاري التطوير - قريباً' : item.labelAr}
+                        disabled={item.isComingSoon}
                     >
                         {item.icon}
                         <span className={styles.navLabel}>{item.labelAr}</span>
+                        {item.isComingSoon && (
+                            <span className={styles.badge}>قريباً</span>
+                        )}
                     </button>
                 ))}
             </nav>

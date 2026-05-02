@@ -3,13 +3,13 @@
  * Toolbar with editing tools, time display, and zoom controls
  * شريط أدوات التايم لاين المحسّن
  * 
- * Layout: [Time Display] --- [Tools in Center] --- [Zoom Controls]
+ * Layout: [Zoom Controls] --- [Tools in Center] --- [Time Display]
  */
 
 'use client'
 
 import { useProjectStore } from '@/store/useProjectStore'
-import { formatTime } from '@/utils/timeUtils'
+import { formatTime, formatSMPTE } from '@/utils/timeUtils'
 import styles from '../Timeline.module.css'
 import { TimelineTool } from '../hooks/useTimelineTools'
 
@@ -25,6 +25,7 @@ export default function TimelineToolbar({
     onToggleLink
 }: TimelineToolbarProps) {
     const {
+        activePanel,
         currentTime,
         videoFile,
         segments,
@@ -33,10 +34,17 @@ export default function TimelineToolbar({
         activeTool,
         setActiveTool,
         snapEnabled,
-        setSnapEnabled
+        setSnapEnabled,
+        showVADOverlay,
+        setShowVADOverlay
     } = useProjectStore()
 
+    const isSilenceMode = activePanel === 'silence'
+
     const onToolChange = (tool: TimelineTool) => {
+        // Prevent switching to text tool in silence mode
+        if (isSilenceMode && tool === 'text') return;
+        
         console.log('[Toolbar] Tool changed to:', tool);
         setActiveTool(tool);
     }
@@ -45,20 +53,36 @@ export default function TimelineToolbar({
 
     return (
         <div className={styles.toolbar}>
-            {/* === LEFT: Time Display === */}
-            <div className={styles.toolbarLeft}>
-                <div className={styles.timeDisplay}>
-                    <span className={styles.currentTimeValue}>
-                        {formatTime(currentTime)}
-                    </span>
-                    <span className={styles.timeSeparator}>/</span>
-                    <span className={styles.totalDuration}>
-                        {formatTime(totalDuration)}
-                    </span>
-                </div>
-                <span className={styles.segmentCount}>
-                    {segments.length} مقطع
-                </span>
+            {/* === RIGHT: Zoom Controls (Moved to the Right in RTL) === */}
+            <div className={styles.toolbarRight}>
+                {/* VAD Overlay Toggle */}
+                <button
+                    className={`${styles.zoomBtn} ${showVADOverlay ? styles.vadActive : ''}`}
+                    onClick={() => setShowVADOverlay(!showVADOverlay)}
+                    title={showVADOverlay ? "إخفاء معاينة تحليل الكلام" : "إظهار معاينة تحليل الكلام"}
+                >
+                    <VADIcon />
+                </button>
+
+                <div className={styles.toolSeparator} style={{ height: 16, margin: '0 8px' }} />
+
+                <button
+                    className={styles.zoomBtn}
+                    onClick={() => setTimelineZoom(Math.max(0.01, timelineZoom / 1.25))}
+                    disabled={timelineZoom <= 0.02}
+                    title="تصغير"
+                >
+                    <ZoomOutIcon />
+                </button>
+                <span className={styles.zoomLevel}>{Math.round(timelineZoom * 100)}%</span>
+                <button
+                    className={styles.zoomBtn}
+                    onClick={() => setTimelineZoom(Math.min(10, timelineZoom * 1.25))}
+                    disabled={timelineZoom >= 10}
+                    title="تكبير"
+                >
+                    <ZoomInIcon />
+                </button>
             </div>
 
             {/* === CENTER: Editing Tools === */}
@@ -92,13 +116,15 @@ export default function TimelineToolbar({
                     </button>
 
                     {/* Text Tool */}
-                    <button
-                        className={`${styles.toolBtn} ${activeTool === 'text' ? styles.toolActive : ''}`}
-                        onClick={() => onToolChange('text')}
-                        title="نص (T) - إضافة ترجمة يدوية"
-                    >
-                        <TextIcon />
-                    </button>
+                    {!isSilenceMode && (
+                        <button
+                            className={`${styles.toolBtn} ${activeTool === 'text' ? styles.toolActive : ''}`}
+                            onClick={() => onToolChange('text')}
+                            title="نص (T) - إضافة ترجمة يدوية"
+                        >
+                            <TextIcon />
+                        </button>
+                    )}
 
                     {/* Ripple Edit Tool */}
                     <button
@@ -155,25 +181,20 @@ export default function TimelineToolbar({
                 </button>
             </div>
 
-            {/* === RIGHT: Zoom Controls === */}
-            <div className={styles.toolbarRight}>
-                <button
-                    className={styles.zoomBtn}
-                    onClick={() => setTimelineZoom(Math.max(0.01, timelineZoom / 1.25))}
-                    disabled={timelineZoom <= 0.02}
-                    title="تصغير"
-                >
-                    <ZoomOutIcon />
-                </button>
-                <span className={styles.zoomLevel}>{Math.round(timelineZoom * 100)}%</span>
-                <button
-                    className={styles.zoomBtn}
-                    onClick={() => setTimelineZoom(Math.min(10, timelineZoom * 1.25))}
-                    disabled={timelineZoom >= 10}
-                    title="تكبير"
-                >
-                    <ZoomInIcon />
-                </button>
+            {/* === LEFT: Time Display (Moved to the Left in RTL) === */}
+            <div className={styles.toolbarLeft}>
+                <span className={styles.segmentCount}>
+                    {segments.length} مقطع
+                </span>
+                <div className={styles.timeDisplay} title="الوقت الحالي / إجمالي المدة">
+                    <span className={styles.currentTimeValue}>
+                        {formatSMPTE(currentTime)}
+                    </span>
+                    <span className={styles.timeSeparator}>/</span>
+                    <span className={styles.totalDuration}>
+                        {formatTime(totalDuration)}
+                    </span>
+                </div>
             </div>
         </div>
     )
@@ -282,5 +303,12 @@ const SlipIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M6 12h12M6 12l3-3M6 12l3 3M18 12l-3-3M18 12l-3 3" />
         <rect x="2" y="4" width="20" height="16" rx="2" strokeDasharray="4 2" />
+    </svg>
+)
+
+// VAD Analysis Icon (Waves)
+const VADIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M2 10v4M6 4v16M10 8v8M14 4v16M18 8v8M22 10v4" />
     </svg>
 )

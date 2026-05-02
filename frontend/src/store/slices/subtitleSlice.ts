@@ -243,12 +243,26 @@ export const createSubtitleSlice: StateCreator<SubtitleSlice> = (set, get) => ({
 
     addSegmentAt: (time, trackId) => set((state: any) => {
         const newId = Math.max(0, ...state.segments.map((s: any) => s.id)) + 1
-        // Default duration 2 seconds, clamped to not overlap next segment? 
-        // For simplicity, just 2s. User can resize.
+        
+        // FIND NEXT SEGMENT TO PREVENT OVERLAP
+        const nextSegment = state.segments
+            .filter((s: any) => s.start > time)
+            .sort((a: any, b: any) => a.start - b.start)[0];
+            
+        const defaultDuration = 2.0;
+        let endTime = time + defaultDuration;
+        
+        if (nextSegment) {
+            // Clamp to not overlap next segment (leave a tiny gap of 0.05s)
+            endTime = Math.min(endTime, nextSegment.start - 0.05);
+            // If the gap is too small, just make it very short
+            if (endTime <= time) endTime = time + 0.1;
+        }
+
         const newSegment: SubtitleSegment = {
             id: newId,
             start: time,
-            end: time + 2.0,
+            end: endTime,
             text: '', // Empty text for immediate typing
             words: []
         }

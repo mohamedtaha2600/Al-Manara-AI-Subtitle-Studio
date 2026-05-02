@@ -13,6 +13,7 @@ interface FontSectionProps {
     onToggle: (id: string) => void
     onSetStyle: (style: any) => void
     onLoadSystemFonts: () => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const FontSection: React.FC<FontSectionProps> = ({
@@ -21,7 +22,8 @@ export const FontSection: React.FC<FontSectionProps> = ({
     systemFonts,
     onToggle,
     onSetStyle,
-    onLoadSystemFonts
+    onLoadSystemFonts,
+    dir = 'ltr'
 }) => {
     return (
         <SectionWrapper
@@ -31,6 +33,7 @@ export const FontSection: React.FC<FontSectionProps> = ({
             isActive={isActive}
             onToggle={onToggle}
             theme="purple"
+            dir={dir}
         >
             <div className={styles.sectionContent}>
                 {/* 1. Font Family Selection */}
@@ -71,6 +74,7 @@ export const FontSection: React.FC<FontSectionProps> = ({
                 <div className={styles.col}>
                     <label>الحجم</label>
                     <div className={styles.sliderRow}>
+                        <span className={styles.sliderValue}>{style.fontSize}</span>
                         <input
                             type="range"
                             min={18}
@@ -79,7 +83,6 @@ export const FontSection: React.FC<FontSectionProps> = ({
                             onChange={(e) => onSetStyle({ fontSize: parseInt(e.target.value) })}
                             className={styles.rangeInput}
                         />
-                        <span className={styles.sliderValue}>{style.fontSize}</span>
                     </div>
                 </div>
 
@@ -94,6 +97,7 @@ export const FontSection: React.FC<FontSectionProps> = ({
                 <div className={styles.col}>
                     <label>التباعد</label>
                     <div className={styles.sliderRow}>
+                        <span className={styles.sliderValue}>{style.letterSpacing}</span>
                         <input
                             type="range"
                             min={-2}
@@ -102,7 +106,6 @@ export const FontSection: React.FC<FontSectionProps> = ({
                             onChange={(e) => onSetStyle({ letterSpacing: parseInt(e.target.value) })}
                             className={styles.rangeInput}
                         />
-                        <span className={styles.sliderValue}>{style.letterSpacing}</span>
                     </div>
                 </div>
             </div>

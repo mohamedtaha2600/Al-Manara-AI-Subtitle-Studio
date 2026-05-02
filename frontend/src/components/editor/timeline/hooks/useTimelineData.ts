@@ -9,8 +9,13 @@ export function useTimelineData() {
     const selectedActionId = useProjectStore(state => state.selectedActionId);
     const tracks = useProjectStore(state => state.tracks);
     const vadSegments = useProjectStore(state => state.vadSegments);
+    const showVADOverlay = useProjectStore(state => state.showVADOverlay);
+    const activePanel = useProjectStore(state => state.activePanel);
 
     const editorData = useMemo(() => {
+        const isSilenceMode = activePanel === 'silence';
+
+        // ... (previous logic)
         // Group 0: Subtitle Tracks (Dynamic)
         const activeTracks = (tracks || []);
 
@@ -90,19 +95,25 @@ export function useTimelineData() {
                         videoUrl: videoFile.url,
                         sourceStart: seg.sourceStart,
                         sourceEnd: seg.sourceEnd,
-                        vadSegments: vadSegments
+                        vadSegments: showVADOverlay ? vadSegments : []
                     }
                 })) : [],
         };
 
-        const finalEditorData = [...subtitleRows];
+        const finalEditorData: TimelineRow[] = [];
+
+        // HIDE SUBTITLE TRACKS IN SILENCE MODE
+        if (!isSilenceMode) {
+            finalEditorData.push(...subtitleRows);
+        }
+
         if (videoFile?.type === 'video') {
             finalEditorData.push(videoTrack);
         }
         finalEditorData.push(waveformTrack);
 
         return finalEditorData;
-    }, [segments, videoSegments, videoFile, selectedActionId, tracks, vadSegments]);
+    }, [segments, videoSegments, videoFile, selectedActionId, tracks, vadSegments, showVADOverlay, activePanel]);
 
     return editorData;
 }

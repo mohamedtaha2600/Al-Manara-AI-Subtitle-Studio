@@ -11,6 +11,26 @@ import { useTimelineHandlers } from './hooks/useTimelineHandlers';
 
 const SIDEBAR_WIDTH = 160;
 
+// Calculate adaptive scale based on zoom
+// We want the distance between major ticks to be at least 100px
+const getAdaptiveScale = (zoom: number) => {
+    const minDistance = 100;
+    const pixelsPerSecond = 160 * zoom;
+    const minScale = minDistance / pixelsPerSecond;
+
+    // NICE INTERVALS (in seconds): 1s, 2s, 5s, 10s, 15s, 30s, 1m, 2m, 5m, 10m, 15m, 30m, 1h, 2h
+    const niceIntervals = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600, 7200];
+    let bestScale = niceIntervals[niceIntervals.length - 1];
+
+    for (const interval of niceIntervals) {
+        if (interval >= minScale) {
+            bestScale = interval;
+            break;
+        }
+    }
+    return bestScale;
+};
+
 export default function VisTimelineWrapper() {
     const activeTool = useProjectStore(state => state.activeTool);
     const timelineZoom = useProjectStore(state => state.timelineZoom);
@@ -75,6 +95,20 @@ export default function VisTimelineWrapper() {
     const scrollLeftRef = useRef(0);
     useEffect(() => { scrollLeftRef.current = scrollLeft }, [scrollLeft]);
 
+    // --- PROFESSIONAL AUTO-FIT LOGIC ---
+    useEffect(() => {
+        if (videoFile && videoFile.duration && containerRef.current) {
+            const availableWidth = containerRef.current.clientWidth - SIDEBAR_WIDTH;
+            if (availableWidth > 50) {
+                // Calculate zoom to fit duration with 5% padding
+                // duration * 160 * zoom = availableWidth * 0.95
+                const fitZoom = (availableWidth * 0.95) / (videoFile.duration * 160);
+                // Clamp and set
+                useProjectStore.getState().setTimelineZoom(Math.max(0.02, Math.min(5, fitZoom)));
+            }
+        }
+    }, [videoFile?.url, videoFile?.duration]);
+
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -83,19 +117,92 @@ export default function VisTimelineWrapper() {
             if (e.ctrlKey || e.metaKey) return;
             if (!timelineRef.current) return;
 
-            // Strictly prevent default to solve the Jitter/Ruler issues
+            // --- ENHANCED INTERACTION: ALT + WHEEL = ZOOM TO MOUSE ---
+            if (e.altKey) {
+                e.preventDefault();
+                const zoomFactor = 1.25; // More aggressive zoom
+                const oldZoom = timelineZoom;
+                const newZoom = e.deltaY < 0 ? oldZoom * zoomFactor : oldZoom / zoomFactor;
+                const clampedZoom = Math.max(0.01, Math.min(10, newZoom));
+
+                if (clampedZoom !== oldZoom) {
+                    // Calculate Mouse Time Position to maintain focus
+                    const rect = container.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left - SIDEBAR_WIDTH;
+                    
+                    if (mouseX > 0) {
+                        const pxToTime = (px: number, z: number) => {
+                            const currentScale = getAdaptiveScale(z);
+                            const currentScaleWidth = 160 * z * currentScale;
+                            return ((px + scrollLeftRef.current) / currentScaleWidth) * currentScale;
+                        };
+
+                        const mouseTime = pxToTime(mouseX, oldZoom);
+                        
+                        // Apply new zoom
+                        useProjectStore.getState().setTimelineZoom(clampedZoom);
+
+                        // Adjust scroll to keep mouseTime at the same mouseX
+                        setTimeout(() => {
+                            const newScale = getAdaptiveScale(clampedZoom);
+                            const newScaleWidth = 160 * clampedZoom * newScale;
+                            const totalDuration = videoFile?.duration || 0;
+                            const totalContentWidth = (totalDuration / newScale) * newScaleWidth;
+                            const visibleWidth = container.clientWidth - SIDEBAR_WIDTH;
+                            const maxScroll = Math.max(0, totalContentWidth - visibleWidth + 100);
+
+                            let newScrollLeft = (mouseTime / newScale) * newScaleWidth - mouseX;
+                            
+                            // Clamp
+                            if (newScrollLeft < 0) newScrollLeft = 0;
+                            if (totalContentWidth <= visibleWidth) newScrollLeft = 0;
+                            else if (newScrollLeft > maxScroll) newScrollLeft = maxScroll;
+
+                            timelineRef.current?.setScrollLeft(newScrollLeft);
+                        }, 0);
+                    } else {
+                        useProjectStore.getState().setTimelineZoom(clampedZoom);
+                    }
+                }
+                return;
+            }
+
+            // strictly prevent default to solve the Jitter/Ruler issues for normal scroll
             e.preventDefault();
 
-            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-            const speed = 1.5;
-            const newLeft = scrollLeftRef.current + delta * speed; // Direction reversed per user request
+            const rawDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+            // Invert: Wheel Forward (Negative Delta) -> Advance Forward (Increase Left)
+            const delta = -rawDelta; 
+            const speed = 2.0; // Slightly faster for better feel
+            
+            // --- PROFESSIONAL CLAMPING LOGIC ---
+            const visibleWidth = container.clientWidth - SIDEBAR_WIDTH;
+            const duration = videoFile?.duration || 0;
+            const currentScale = getAdaptiveScale(timelineZoom);
+            const currentScaleWidth = 160 * timelineZoom * currentScale;
+            const totalContentWidth = (duration / currentScale) * currentScaleWidth;
+
+            // Maximum allowed scroll
+            const maxScroll = Math.max(0, totalContentWidth - visibleWidth + 100); // 100px padding at the end
+            
+            let newLeft = scrollLeftRef.current + delta * speed; 
+
+            // CLAMP: Prevent scrolling into negative space (before 0)
+            if (newLeft < 0) newLeft = 0;
+            
+            // CLAMP: Prevent scrolling past the end if the content fits the screen
+            if (totalContentWidth <= visibleWidth) {
+                newLeft = 0;
+            } else if (newLeft > maxScroll) {
+                newLeft = maxScroll;
+            }
 
             timelineRef.current.setScrollLeft(newLeft);
         };
 
         container.addEventListener('wheel', handleWheel, { passive: false });
         return () => container.removeEventListener('wheel', handleWheel);
-    }, []);
+    }, [timelineZoom]); // Re-bind when zoom changes to capture updated state in closure
 
     // Modularized Data and Handlers
     const editorData = useTimelineData();
@@ -203,7 +310,7 @@ export default function VisTimelineWrapper() {
     }, [isPanning]);
 
     // MARQUEE SELECTION LOGIC
-    const [marquee, setMarquee] = useState<{ startX: number, startY: number, endX: number, endY: number } | null>(null);
+    const [marquee, setMarquee] = useState<{ startX: number, startY: number, endX: number, endY: number, isShift?: boolean } | null>(null);
     const selectionRef = useRef<HTMLDivElement>(null);
 
     const handleContainerMouseDown = (e: React.MouseEvent) => {
@@ -239,15 +346,18 @@ export default function VisTimelineWrapper() {
             // Marquee Logic (Only if Select Tool)
             if (activeTool === 'select') {
                 setMarquee({
-                    startX: (e.clientX - rect.left) / ZOOM,
+                    startX: clickX,
                     startY: (e.clientY - rect.top) / ZOOM,
-                    endX: (e.clientX - rect.left) / ZOOM,
-                    endY: (e.clientY - rect.top) / ZOOM
+                    endX: clickX,
+                    endY: (e.clientY - rect.top) / ZOOM,
+                    isShift: e.shiftKey
                 });
 
-                // Clear existing selection on new marquee start/click in empty space
-                setSelectedActionId(null);
-                setMultiSelectActionIds([]);
+                // Clear existing selection ONLY if NOT holding Shift
+                if (!e.shiftKey) {
+                    setSelectedActionId(null);
+                    setMultiSelectActionIds([]);
+                }
             }
         }
         handleMouseDown(e); // Keep hand tool support
@@ -256,7 +366,9 @@ export default function VisTimelineWrapper() {
     const handleContainerMouseMove = (e: React.MouseEvent) => {
         if (marquee) {
             const ZOOM = 0.9;
-            const rect = (e.currentTarget as HTMLElement).querySelector(`.${styles.timelineEditorContainer}`)!.getBoundingClientRect();
+            const container = (e.currentTarget as HTMLElement).querySelector(`.${styles.timelineEditorContainer}`);
+            if (!container) return;
+            const rect = container.getBoundingClientRect();
             setMarquee(prev => prev ? ({
                 ...prev,
                 endX: (e.clientX - rect.left) / ZOOM,
@@ -265,7 +377,7 @@ export default function VisTimelineWrapper() {
         }
     };
 
-    const handleContainerMouseUp = () => {
+    const handleContainerMouseUp = (e: React.MouseEvent) => {
         if (marquee && timelineRef.current) {
             // CALCULATE SELECTION
             const x1 = Math.min(marquee.startX, marquee.endX);
@@ -274,23 +386,18 @@ export default function VisTimelineWrapper() {
             const y2 = Math.max(marquee.startY, marquee.endY);
 
             // Convert Pixels to Time
-            // startLeft=160 (sidebar), scaleWidth is currentScale pixels per currentScale seconds
             const pxToTime = (px: number) => {
-                const relativeX = px + scrollLeft; // Offset only by scroll now
+                const relativeX = px + scrollLeft; 
                 return (relativeX / currentScaleWidth) * currentScale;
             };
 
             const startTime = pxToTime(x1);
             const endTime = pxToTime(x2);
 
-            // Row mapping (from useTimelineData)
-            // Subtitle Row: Top=0, Height=32
-            // Video Row: Top=32, Height=50
-            // Audio Row: Top=82, Height=60
             const selectedIds: string[] = [];
 
             let currentAccumulatedTop = 0;
-            editorData.forEach((row, index) => {
+            editorData.forEach((row) => {
                 const rowTop = currentAccumulatedTop;
                 const currentRowHeight = row.rowHeight || 50;
                 const rowBottom = rowTop + currentRowHeight;
@@ -308,31 +415,22 @@ export default function VisTimelineWrapper() {
             });
 
             if (selectedIds.length > 0) {
-                setMultiSelectActionIds(selectedIds);
+                if (marquee.isShift) {
+                    const currentSelection = useProjectStore.getState().multiSelectActionIds;
+                    setMultiSelectActionIds(Array.from(new Set([...currentSelection, ...selectedIds])));
+                } else {
+                    setMultiSelectActionIds(selectedIds);
+                }
+            } else {
+                // If it was just a click (x1==x2) and no shift, clear selection
+                if (Math.abs(marquee.startX - marquee.endX) < 5 && !marquee.isShift) {
+                    setMultiSelectActionIds([]);
+                }
             }
         }
         setMarquee(null);
     };
 
-    // Calculate adaptive scale based on zoom
-    // We want the distance between major ticks to be at least 100px
-    const getAdaptiveScale = (zoom: number) => {
-        const minDistance = 100;
-        const pixelsPerSecond = 160 * zoom;
-        const minScale = minDistance / pixelsPerSecond;
-
-        // NICE INTERVALS (in seconds): 1s, 2s, 5s, 10s, 15s, 30s, 1m, 2m, 5m, 10m, 15m, 30m, 1h, 2h
-        const niceIntervals = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600, 7200];
-        let bestScale = niceIntervals[niceIntervals.length - 1];
-
-        for (const interval of niceIntervals) {
-            if (interval >= minScale) {
-                bestScale = interval;
-                break;
-            }
-        }
-        return bestScale;
-    };
 
     const currentScale = getAdaptiveScale(timelineZoom);
     // scaleWidth is the pixel width of one 'scale' unit

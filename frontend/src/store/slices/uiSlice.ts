@@ -40,6 +40,10 @@ export interface UISlice {
     multiSelectActionIds: string[]
     selectedTrackId: string | null
     trackConfigs: Record<string, TrackConfig>
+    showVADOverlay: boolean
+    editorLayout: 'horizontal' | 'vertical'
+    showSafeZones: boolean
+    showGrid: boolean
 
     // Actions
     setUploadModalOpen: (isOpen: boolean) => void
@@ -67,6 +71,10 @@ export interface UISlice {
     setTrackConfig: (trackId: string, updates: Partial<TrackConfig>) => void
     toggleTrackLock: (trackId: string) => void
     toggleTrackVisibility: (trackId: string) => void
+    setShowVADOverlay: (show: boolean) => void
+    setEditorLayout: (layout: 'horizontal' | 'vertical') => void
+    setShowSafeZones: (show: boolean) => void
+    setShowGrid: (show: boolean) => void
 
     // Navigation
     currentView: 'dashboard' | 'editor'
@@ -103,6 +111,10 @@ export const createUISlice: StateCreator<UISlice> = (set) => ({
         'video-track': { id: 'video-track', label: 'Video Track', isHidden: false, isLocked: false },
         'waveform-track': { id: 'waveform-track', label: 'Audio', isHidden: false, isLocked: false, isMuted: false, isSolo: false },
     },
+    showVADOverlay: true,
+    editorLayout: 'horizontal',
+    showSafeZones: false,
+    showGrid: false,
 
     setUploadModalOpen: (isOpen) => set({ isUploadModalOpen: isOpen }),
     setImportModalOpen: (isOpen) => set({ isImportModalOpen: isOpen }),
@@ -147,6 +159,10 @@ export const createUISlice: StateCreator<UISlice> = (set) => ({
             [trackId]: { ...state.trackConfigs[trackId], isHidden: !state.trackConfigs[trackId].isHidden }
         }
     })),
+    setShowVADOverlay: (show) => set({ showVADOverlay: show }),
+    setEditorLayout: (layout) => set({ editorLayout: layout }),
+    setShowSafeZones: (show) => set({ showSafeZones: show }),
+    setShowGrid: (show) => set({ showGrid: show }),
 
     currentView: 'dashboard',
     setCurrentView: (view) => set({ currentView: view }),

@@ -16,6 +16,11 @@
     width: 100%;
     background: #000;
     position: relative;
+    transition: filter 0.2s ease;
+}
+
+.selectedWaveform {
+    /* Optional additional styles if filter isn't enough */
 }
 
 .waveformPlaceholder {

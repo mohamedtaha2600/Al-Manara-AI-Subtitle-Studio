@@ -11,14 +11,19 @@ interface PresetsSectionProps {
     currentStyle: any
     onToggle: (id: string) => void
     onSelectPreset: (preset: any) => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const PresetsSection: React.FC<PresetsSectionProps> = ({
     isActive,
     currentStyle,
     onToggle,
-    onSelectPreset
+    onSelectPreset,
+    dir = 'ltr'
 }) => {
+    // ...
+    const isRTL = dir === 'rtl'
+
     // Simple heuristic to check if a preset is "active"
     // We compare fontFamily and primaryColor as they are most distinctive
     const isPresetActive = (presetStyle: any) => {
@@ -35,6 +40,7 @@ export const PresetsSection: React.FC<PresetsSectionProps> = ({
             isActive={isActive}
             onToggle={onToggle}
             theme="purple"
+            dir={dir}
         >
             <div className={styles.presets}>
                 {PRESETS.map((preset) => (

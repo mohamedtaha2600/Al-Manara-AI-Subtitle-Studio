@@ -176,7 +176,7 @@ export default function ImportModal() {
                     name: mediaFile.name,
                     url: localUrl,
                     duration: 0,
-                    type: 'video'
+                    type: mediaFile.type.startsWith('audio/') || ['.mp3', '.wav', '.m4a', '.flac'].some(ext => mediaFile.name.toLowerCase().endsWith(ext)) ? 'audio' : 'video'
                 })
             }
 

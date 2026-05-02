@@ -121,10 +121,6 @@ export default function ProgressLog({ filterSilence = false }: ProgressLogProps)
                         </div>
                     </div>
                     <div className={styles.actions}>
-                        <div className={styles.toolBadge}>
-                            <Activity size={12} />
-                            <span>{filterSilence ? 'حذف الصمت' : 'محرك الترجمة'}</span>
-                        </div>
                         <button
                             className={styles.actionBtn}
                             onClick={handleCopy}

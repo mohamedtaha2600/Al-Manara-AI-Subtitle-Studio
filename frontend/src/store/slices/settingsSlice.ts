@@ -15,8 +15,10 @@ export interface SettingsSlice {
     performanceMode: 'accuracy' | 'speed' // New: Turbo Mode
     tempPath: string
     outputPath: string
+    engineSource: 'local' | 'cloud'
+    localModelPath: string
 
-    setSystemSetting: (key: 'gpuEnabled' | 'offlineMode' | 'autoCleanup' | 'performanceMode' | 'tempPath' | 'outputPath', value: any) => void
+    setSystemSetting: (key: 'gpuEnabled' | 'offlineMode' | 'autoCleanup' | 'performanceMode' | 'tempPath' | 'outputPath' | 'engineSource' | 'localModelPath', value: any) => void
 
     setPreferredModel: (model: string) => void
     addLog: (level: LogMessage['level'], message: string) => void
@@ -30,11 +32,13 @@ export const createSettingsSlice: StateCreator<SettingsSlice> = (set, get) => ({
 
     // Default System Settings
     gpuEnabled: true,
-    offlineMode: true,
+    offlineMode: false,
     autoCleanup: true,
     performanceMode: 'speed', // Default to speed for GTX 1650
     tempPath: './temp',
     outputPath: 'source', // 'source' or custom path
+    engineSource: 'local',
+    localModelPath: './models',
 
     setSystemSetting: (key, value) => set((state) => ({ ...state, [key]: value })),
 

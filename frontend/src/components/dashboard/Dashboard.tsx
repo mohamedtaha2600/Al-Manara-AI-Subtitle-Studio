@@ -42,7 +42,6 @@ export default function Dashboard() {
         reset()
         setProjectName('مشروع جديد')
         setCurrentView('editor')
-        setTimeout(() => setUploadModalOpen(true), 150)
     }
 
     const handleOpenProject = () => {
@@ -53,7 +52,6 @@ export default function Dashboard() {
     const handleImportSRT = () => {
         reset()
         setCurrentView('editor')
-        setTimeout(() => setImportModalOpen(true), 150)
     }
 
     const handleOpenRecent = (project: Project) => {

@@ -198,12 +198,10 @@ export default function SubtitleEditor() {
     }
 
     // Conditional Rendering
-    if (!videoFile) return <EmptyState />
-
     if (segments.length === 0 && !isTranscribing) {
         return (
             <TranscriptionPrompt
-                videoFileName={videoFile.name}
+                videoFileName={videoFile?.name || ''}
                 settings={settings}
                 vadPreviewSettings={vadPreviewSettings}
                 gpuEnabled={gpuEnabled}

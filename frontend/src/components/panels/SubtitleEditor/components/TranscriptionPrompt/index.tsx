@@ -51,11 +51,12 @@ export const TranscriptionPrompt: React.FC<TranscriptionPromptProps> = ({
         <div className={styles.transcribePrompt}>
             {/* Header Area */}
             <div className={styles.headerArea}>
-                <div className={styles.promptIcon}>
-                    <MicIcon />
+                <div className={styles.titleRow}>
+                    <div className={styles.promptIcon}>
+                        <MicIcon />
+                    </div>
+                    <h3>خيارات توليد النص</h3>
                 </div>
-                <h3>جاهز للتحليل والترجمة</h3>
-                <p className={styles.fileName}>{videoFileName}</p>
             </div>
 
             {/* Main Sections */}

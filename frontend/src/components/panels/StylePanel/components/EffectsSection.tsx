@@ -10,13 +10,15 @@ interface EffectsSectionProps {
     style: any
     onToggle: (id: string) => void
     onSetStyle: (style: any) => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const EffectsSection: React.FC<EffectsSectionProps> = ({
     isActive,
     style,
     onToggle,
-    onSetStyle
+    onSetStyle,
+    dir = 'ltr'
 }) => {
     return (
         <SectionWrapper
@@ -25,6 +27,7 @@ export const EffectsSection: React.FC<EffectsSectionProps> = ({
             icon={<ImageIcon size={18} />}
             isActive={isActive}
             onToggle={onToggle}
+            dir={dir}
         >
             <div className={styles.sectionContent}>
                 {/* Background Color */}
@@ -106,7 +109,7 @@ export const EffectsSection: React.FC<EffectsSectionProps> = ({
 
                 <div className={styles.row}>
                     <label>
-                        <Droplet size={14} /> ضبابية (Blur)
+                        <Droplet size={14} /> <span>ضبابية (Blur)</span>
                     </label>
                     <div className={styles.sliderRow}>
                         <input
@@ -123,7 +126,7 @@ export const EffectsSection: React.FC<EffectsSectionProps> = ({
 
                 <div className={styles.toggleRow}>
                     <div className={styles.toggleLabel}>
-                        <Layers size={14} /> ظل النص (Shadow)
+                        <Layers size={14} /> <span>ظل النص (Shadow)</span>
                     </div>
                     <button
                         className={`${styles.toggleBtn} ${style.boxShadow ? styles.active : ''}`}

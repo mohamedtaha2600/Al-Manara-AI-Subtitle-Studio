@@ -10,13 +10,15 @@ interface ColorsSectionProps {
     style: any
     onToggle: (id: string) => void
     onSetStyle: (style: any) => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const ColorsSection: React.FC<ColorsSectionProps> = ({
     isActive,
     style,
     onToggle,
-    onSetStyle
+    onSetStyle,
+    dir = 'ltr'
 }) => {
     return (
         <SectionWrapper
@@ -26,6 +28,7 @@ export const ColorsSection: React.FC<ColorsSectionProps> = ({
             isActive={isActive}
             onToggle={onToggle}
             theme="pink"
+            dir={dir}
         >
             <div className={styles.sectionContent}>
                 <div className={styles.colorRow}>

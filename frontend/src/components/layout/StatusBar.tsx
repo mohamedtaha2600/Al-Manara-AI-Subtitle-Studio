@@ -27,7 +27,8 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
         gpuEnabled,
         performanceMode,
         isVideoUploading,
-        videoUploadProgress
+        videoUploadProgress,
+        engineSource
     } = useProjectStore()
 
     const [backendStatus, setBackendStatus] = useState<'connected' | 'disconnected' | 'checking'>('checking')
@@ -37,7 +38,7 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
     useEffect(() => {
         const checkBackend = async () => {
             try {
-                const response = await fetch(getApiUrl('health'), { method: 'GET' })
+                const response = await fetch(getApiUrl('health', engineSource), { method: 'GET' })
                 if (response.ok || response.status === 404) {
                     // 404 is fine - means backend is running but no /health endpoint
                     setBackendStatus('connected')
@@ -52,7 +53,7 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
         checkBackend()
         const interval = setInterval(checkBackend, 30000) // Check every 30s
         return () => clearInterval(interval)
-    }, [])
+    }, [engineSource])
 
     // Update model status based on transcription
     useEffect(() => {
@@ -79,7 +80,6 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
         if (progress > 0) return '🚀 جاري البدء...'
         return ''
     }
-
     return (
         <div className={styles.statusBar}>
             {/* Turbo Progress Line (Premium Overlay) */}
@@ -94,7 +94,6 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
                 />
             )}
 
-            {/* Left: Connection Status */}
             <div className={styles.leftSection}>
                 {/* Backend Status */}
                 <div
@@ -102,22 +101,25 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
                     title={backendStatus === 'connected' ? 'Server Online' : 'Server Offline'}
                 />
                 <span className={styles.statusText}>
-                    {backendStatus === 'connected' ? 'خادم متصل' : 'مفصول'}
+                    {engineSource === 'local' ? 'الاستوديو المحلي' : 'الخادم السحابي'}: {backendStatus === 'connected' ? 'متصل' : 'مفصول'}
                 </span>
 
-                <div className={styles.divider} />
-
-                {/* GPU Status */}
-                <div
-                    className={styles.statusDot}
-                    style={{
-                        background: gpuEnabled ? 'var(--accent-secondary)' : 'var(--warning)',
-                        boxShadow: gpuEnabled ? '0 0 8px var(--accent-secondary)' : 'none'
-                    }}
-                />
-                <span className={styles.statusText}>
-                    {gpuEnabled ? 'GPU Ready 🚀' : 'CPU Mode 💻'}
-                </span>
+                {/* GPU Status - Only relevant in Local Mode */}
+                {engineSource === 'local' && (
+                    <>
+                        <div className={styles.divider} />
+                        <div
+                            className={styles.statusDot}
+                            style={{
+                                background: gpuEnabled ? 'var(--accent-secondary)' : 'var(--warning)',
+                                boxShadow: gpuEnabled ? '0 0 8px var(--accent-secondary)' : 'none'
+                            }}
+                        />
+                        <span className={styles.statusText}>
+                            {gpuEnabled ? 'GPU Ready 🚀' : 'CPU Mode 💻'}
+                        </span>
+                    </>
+                )}
 
                 {/* Turbo Mode Indicator */}
                 {performanceMode === 'speed' && (
@@ -140,16 +142,24 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
                     </>
                 )}
 
-                {/* Background Upload Progress */}
-                {isVideoUploading && (
+                {/* Background Upload Progress & Completion Status */}
+                {isVideoUploading ? (
                     <>
                         <div className={styles.divider} />
                         <div className={`${styles.statusDot} ${styles.loading}`} style={{ background: 'var(--accent-secondary)' }} />
                         <span className={styles.statusText} style={{ color: 'var(--accent-secondary)' }}>
-                            جاري رفع الفيديو: {videoUploadProgress}%
+                            جاري رفع {videoFile?.type === 'audio' ? 'الصوت' : 'الفيديو'}: {videoUploadProgress}%
                         </span>
                     </>
-                )}
+                ) : videoFile ? (
+                    <>
+                        <div className={styles.divider} />
+                        <div className={styles.statusDot} style={{ background: 'var(--success)', boxShadow: '0 0 8px var(--success)' }} />
+                        <span className={styles.statusText} style={{ color: 'var(--success)', fontWeight: 500 }}>
+                            تم التحميل ✅
+                        </span>
+                    </>
+                ) : null}
             </div>
 
             {/* Center: Progress */}
@@ -172,11 +182,6 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
 
             {/* Right: Stats */}
             <div className={styles.rightSection}>
-                {segments.length > 0 && (
-                    <span className={styles.stat}>
-                        📝 {segments.length} مقطع
-                    </span>
-                )}
                 {videoFile && (
                     <span className={styles.stat}>
                         🎬 {videoFile.name.slice(0, 20)}...

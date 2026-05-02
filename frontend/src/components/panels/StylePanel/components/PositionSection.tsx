@@ -10,13 +10,15 @@ interface PositionSectionProps {
     style: any
     onToggle: (id: string) => void
     onSetStyle: (style: any) => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const PositionSection: React.FC<PositionSectionProps> = ({
     isActive,
     style,
     onToggle,
-    onSetStyle
+    onSetStyle,
+    dir = 'ltr'
 }) => {
     return (
         <SectionWrapper
@@ -25,6 +27,7 @@ export const PositionSection: React.FC<PositionSectionProps> = ({
             icon={<Layout size={18} />}
             isActive={isActive}
             onToggle={onToggle}
+            dir={dir}
         >
             <div className={styles.sectionContent}>
                 <div className={styles.positionGrid}>

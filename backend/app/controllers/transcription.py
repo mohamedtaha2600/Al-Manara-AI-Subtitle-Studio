@@ -288,32 +288,34 @@ async def process_transcription(
 
                     # Helper function - Synchronous (Run in Executor)
                     def translate_single(text: str) -> str:
-                        # 1. Try Argos (Offline) - If available
+                        # Normalize language codes for Google (e.g. 'ar' instead of 'arabic')
+                        src = detected_lang if detected_lang and len(detected_lang) <= 3 else 'auto'
+                        tgt = target_lang if target_lang and len(target_lang) <= 3 else 'en'
+
+                        # 1. Try Google (Online) - Higher quality
+                        if not offline_mode:
+                            try:
+                                result = GoogleTranslator(source=src, target=tgt).translate(text)
+                                if result and result.strip() and result.strip() != text.strip():
+                                    return result
+                            except Exception as e:
+                                print(f"[DEBUG] Google Translate failed for segment: {e}")
+
+                        # 2. Try Argos (Offline) - If available
                         if can_use_argos:
                             try:
-                                # Fix: Use detected_lang instead of hardcoded 'en'
-                                translated = argostranslate.translate.translate(text, detected_lang, target_lang)
-                                if translated:
+                                translated = argostranslate.translate.translate(text, src, tgt)
+                                if translated and translated.strip() != text.strip():
                                     return translated
                             except Exception:
                                 pass
 
-                        # 2. Try Google (Online)
-                        try:
-                            # 2. Try Google (Online) - Only if NOT offline_mode
-                            if not offline_mode:
-                                # Fix: Use detected_lang for better accuracy
-                                return GoogleTranslator(source=detected_lang, target=target_lang).translate(text)
-                        except Exception:
-                            pass
-                        
-                        try:
-                            # 3. Try MyMemory as fallback - Only if NOT offline_mode
-                            if not offline_mode:
-                                # Fix: Use detected_lang instead of hardcoded 'en'
-                                return MyMemoryTranslator(source=detected_lang, target=target_lang).translate(text)
-                        except Exception:
-                            pass
+                        # 3. Try MyMemory as fallback
+                        if not offline_mode:
+                            try:
+                                return MyMemoryTranslator(source=src, target=tgt).translate(text)
+                            except Exception:
+                                pass
                         
                         return text
 

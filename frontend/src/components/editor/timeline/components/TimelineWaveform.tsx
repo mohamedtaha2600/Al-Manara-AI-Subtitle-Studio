@@ -26,6 +26,7 @@ interface TimelineWaveformProps {
     pixelsPerSecond: number
     height: number
     scrollLeft: number
+    isSelected?: boolean
     segments?: SubtitleSegment[] // Whisper segments for accurate coloring
     silenceSegments?: SilenceSegment[] // Silence segments for yellow highlighting
     vadSegments?: Array<{ start: number, end: number }> // Browser-side speech detection
@@ -38,6 +39,7 @@ const TimelineWaveform = ({
     pixelsPerSecond,
     height,
     scrollLeft,
+    isSelected = false,
     segments = [],
     silenceSegments = [],
     vadSegments = [],
@@ -130,12 +132,15 @@ const TimelineWaveform = ({
 
     return (
         <div
-            className={styles.waveformContainer}
+            className={`${styles.waveformContainer} ${isSelected ? styles.selectedWaveform : ''}`}
             style={{
                 height: `${height}px`,
                 width: isReady ? `${displayDuration * pixelsPerSecond}px` : '100%',
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                // Inline override for immediate feedback if needed, 
+                // but class-based is better for transitions
+                filter: isSelected ? 'brightness(1.5) contrast(1.1)' : 'none'
             }}
         >
             {/* Upload Progress "Water Fill" Layer */}

@@ -99,6 +99,81 @@ async def health_check():
     return {"status": "healthy", "model": "ready"}
 
 
+@app.get("/api/system_check")
+async def system_check():
+    """Perform a detailed system requirements check."""
+    import shutil
+    import psutil
+    import platform
+    
+    # 1. GPU Check
+    gpu_status = {"available": False, "name": "Not Found"}
+    try:
+        import torch
+        if torch.cuda.is_available():
+            gpu_status = {
+                "available": True,
+                "name": torch.cuda.get_device_name(0),
+                "vram": f"{torch.cuda.get_device_properties(0).total_memory / (1024**3):.1f} GB"
+            }
+    except Exception:
+        pass
+
+    # 2. Disk Check
+    total, used, free = shutil.disk_usage("/")
+    disk_status = {
+        "total": f"{total / (1024**3):.1f} GB",
+        "free": f"{free / (1024**3):.1f} GB",
+        "percent": f"{(used/total)*100:.1f}%"
+    }
+
+    # 3. Memory Check
+    mem = psutil.virtual_memory()
+    mem_status = {
+        "total": f"{mem.total / (1024**3):.1f} GB",
+        "available": f"{mem.available / (1024**3):.1f} GB",
+        "percent": f"{mem.percent}%"
+    }
+
+    # 4. Dependency Check
+    dependencies = {
+        "faster_whisper": False,
+        "nltk": False,
+        "torch": False,
+        "onnxruntime": False
+    }
+    try:
+        import faster_whisper
+        dependencies["faster_whisper"] = True
+    except ImportError: pass
+    
+    try:
+        import nltk
+        dependencies["nltk"] = True
+    except ImportError: pass
+    
+    try:
+        import torch
+        dependencies["torch"] = True
+    except ImportError: pass
+
+    try:
+        import onnxruntime
+        dependencies["onnxruntime"] = True
+    except ImportError: pass
+
+    return {
+        "success": True,
+        "os": f"{platform.system()} {platform.release()}",
+        "python": platform.python_version(),
+        "gpu": gpu_status,
+        "disk": disk_status,
+        "memory": mem_status,
+        "dependencies": dependencies,
+        "status": "ready"
+    }
+
+
 @app.websocket("/ws/progress")
 async def websocket_endpoint(websocket: WebSocket):
     """

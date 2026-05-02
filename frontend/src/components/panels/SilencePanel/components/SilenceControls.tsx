@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import styles from './SilenceControls.module.css'
 import {
@@ -9,7 +10,8 @@ import {
     Scissors,
     Save,
     Monitor,
-    Server
+    Server,
+    Share2
 } from 'lucide-react'
 
 export default function SilenceControls() {
@@ -22,8 +24,21 @@ export default function SilenceControls() {
         silenceProgress,
         silenceDetectionMode,
         setSilenceDetectionMode,
-        exportWithoutSilence
+        exportWithoutSilence,
+        videoFile,
+        setExportModalOpen
     } = useProjectStore()
+
+    // Auto-detect when settings change (Debounced)
+    useEffect(() => {
+        if (!videoFile) return
+
+        const timer = setTimeout(() => {
+            detectSilence()
+        }, 600) // 600ms delay to allow user to finish sliding
+
+        return () => clearTimeout(timer)
+    }, [silenceSettings, silenceDetectionMode, detectSilence, videoFile])
 
     const handleChange = (key: keyof typeof silenceSettings, value: number) => {
         setSilenceSettings({ [key]: value })
@@ -32,8 +47,13 @@ export default function SilenceControls() {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h3><Scissors size={18} /> إزالة الصمت</h3>
-                <p>إعدادات الكشف التلقائي</p>
+                <div className={styles.headerTitle}>
+                    <h3><Scissors size={18} /> إزالة الصمت</h3>
+                    <span className={styles.liveBadge} title="يتم التحديث تلقائياً عند تغيير الإعدادات">
+                        <span className={styles.pulse} /> مباشر
+                    </span>
+                </div>
+                <p>إعدادات الكشف التلقائي الذكي</p>
             </div>
 
             {/* Detection Mode Toggle */}
@@ -111,8 +131,9 @@ export default function SilenceControls() {
             </div>
 
             <div className={styles.actions}>
+                {/* Manual trigger for safety, but less prominent */}
                 <button
-                    className={styles.detectBtn}
+                    className={styles.detectBtnSecondary}
                     onClick={() => detectSilence()}
                     disabled={isDetectingSilence}
                 >
@@ -122,20 +143,26 @@ export default function SilenceControls() {
                         </>
                     ) : (
                         <>
-                            <Zap size={16} /> كشف الصمت
+                            <Zap size={14} /> إعادة الكشف يدوياً
                         </>
                     )}
                 </button>
 
-                {/* Progress Bar */}
-                {isDetectingSilence && (
-                    <div className={styles.progressBar}>
-                        <div
-                            className={styles.progressFill}
-                            style={{ width: `${silenceProgress}%` }}
-                        />
-                    </div>
-                )}
+                {/* Progress Bar (Always visible placeholder to prevent jumping) */}
+                <div className={styles.progressContainer}>
+                    {isDetectingSilence ? (
+                        <div className={styles.progressBar}>
+                            <div
+                                className={styles.progressFill}
+                                style={{ width: `${silenceProgress}%` }}
+                            />
+                        </div>
+                    ) : (
+                        <div className={styles.statusOk}>
+                             <Zap size={10} /> تم التحديث
+                        </div>
+                    )}
+                </div>
 
                 {detectedSilence.length > 0 && (
                     <div className={styles.stats}>
@@ -145,15 +172,6 @@ export default function SilenceControls() {
                 )}
             </div>
 
-            <div className={styles.exportSection}>
-                <button
-                    className={styles.exportBtn}
-                    disabled={detectedSilence.length === 0}
-                    onClick={() => exportWithoutSilence()}
-                >
-                    <Scissors size={16} /> تصدير الفيديو (بدون صمت)
-                </button>
-            </div>
         </div>
     )
 }

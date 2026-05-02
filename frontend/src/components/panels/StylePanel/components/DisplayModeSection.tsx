@@ -13,6 +13,7 @@ interface DisplayModeSectionProps {
     onToggle: (id: string) => void
     onSetStyle: (style: any) => void
     onRegenerate: (mode: any) => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const DisplayModeSection: React.FC<DisplayModeSectionProps> = ({
@@ -20,8 +21,10 @@ export const DisplayModeSection: React.FC<DisplayModeSectionProps> = ({
     style,
     onToggle,
     onSetStyle,
-    onRegenerate
+    onRegenerate,
+    dir = 'ltr'
 }) => {
+    // ... (logic remains same)
     const {
         segmentationSettings,
         setSegmentationSettings,
@@ -46,6 +49,7 @@ export const DisplayModeSection: React.FC<DisplayModeSectionProps> = ({
             isActive={isActive}
             onToggle={onToggle}
             theme="blue"
+            dir={dir}
         >
             <div className={styles.container}>
                 {/* 1. Display Modes Grid */}

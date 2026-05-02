@@ -5,9 +5,26 @@ import { useProjectStore } from '@/store/useProjectStore'
 import { generateSRT, generateVTT, generateTXT } from '@/utils/subtitleUtils'
 import styles from './ExportModal.module.css'
 import { API_BASE_URL } from '@/utils/config'
+import { 
+    X, 
+    Download, 
+    Share2, 
+    FileText, 
+    Globe, 
+    FileCode, 
+    Video, 
+    Zap, 
+    Trash2, 
+    Scissors,
+    Monitor,
+    Flame,
+    CheckCircle2,
+    Info
+} from 'lucide-react'
 
 export default function ExportModal() {
     const {
+        activePanel,
         segments: globalSegments,
         videoFile,
         projectName,
@@ -16,7 +33,9 @@ export default function ExportModal() {
         isExportModalOpen,
         setExportModalOpen,
         isVideoUploading,
-        setExportProgressModalOpen
+        setExportProgressModalOpen,
+        detectedSilence,
+        exportWithoutSilence
     } = useProjectStore()
 
     const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null)
@@ -113,7 +132,7 @@ export default function ExportModal() {
     }
 
     const handleCleanup = async () => {
-        if (!videoFile?.id || !confirm('هل أنت متأكد من حذف ملفات هذا المشروع من السيرفر؟')) return
+        if (!videoFile?.id) return
 
         setIsCleaning(true)
         try {
@@ -122,7 +141,6 @@ export default function ExportModal() {
             })
             if (response.ok) {
                 setIsCleaned(true)
-                alert('تم تنظيف ملفات المشروع بنجاح')
             }
         } catch (error) {
             console.error('Cleanup failed:', error)
@@ -133,97 +151,185 @@ export default function ExportModal() {
 
     if (!isExportModalOpen) return null
 
+    const isSilenceMode = activePanel === 'silence'
+    const hasVideo = !!videoFile
+    const hasSubtitles = availableSegments.length > 0
+    const hasSilence = detectedSilence.length > 0
+
     return (
         <div className={styles.overlay} onClick={handleClose}>
-            <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()} dir="rtl">
+                
+                {/* Header Section */}
                 <div className={styles.header}>
-                    <h2>تصدير الترجمة - Export Subtitles</h2>
-                    <button className={styles.closeBtn} onClick={handleClose}>×</button>
+                    <div className={styles.headerTitle}>
+                        <div className={styles.iconBox}>
+                            <Share2 size={24} />
+                        </div>
+                        <div className={styles.titleInfo}>
+                            <h2>{isSilenceMode ? 'تصدير الفيديو النظيف' : 'تصدير المشروع'}</h2>
+                            <p>{isSilenceMode ? 'تصدير الفيديو بعد إزالة السكتات' : 'اختر صيغة التصدير المناسبة لعملك'}</p>
+                        </div>
+                    </div>
+                    <button className={styles.closeBtn} onClick={handleClose} title="إغلاق">
+                        <X size={20} />
+                    </button>
                 </div>
 
-                <div className={styles.content}>
-                    {availableTracks.length > 1 && (
-                        <div className={styles.section}>
-                            <span className={styles.label}>اختر المسار / Select Track</span>
-                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 15 }}>
-                                {availableTracks.map(track => (
-                                    <button
-                                        key={track.id}
-                                        onClick={() => setSelectedTrackId(track.id)}
-                                        className={styles.trackBtn}
-                                        style={{
-                                            background: effectiveTrack.id === track.id ? 'var(--accent-primary)' : 'transparent',
-                                        }}
-                                    >
-                                        {track.name} ({track.language})
-                                    </button>
-                                ))}
+                <div className={styles.modalBody}>
+                    {!hasVideo ? (
+                        <div className={styles.emptyState}>
+                            <div className={styles.emptyIcon}><Video size={48} /></div>
+                            <h3>لا يوجد ملف فيديو متاح</h3>
+                            <p>يرجى رفع ملف فيديو أو البدء بمشروع جديد لتتمكن من التصدير.</p>
+                            <button className={styles.emptyBtn} onClick={handleClose}>فهمت</button>
+                        </div>
+                    ) : (
+                        <div className={styles.mainContent}>
+                            
+                            {/* 1. Silence Mode Export Options */}
+                            {isSilenceMode ? (
+                                <div className={styles.section}>
+                                    <div className={styles.sectionHeader}>
+                                        <div className={styles.sectionIcon}><Zap size={18} /></div>
+                                        <h3>تصدير معالجة الصمت</h3>
+                                    </div>
+                                    
+                                    <div className={styles.infoCard}>
+                                        <Info size={18} />
+                                        <p>سيتم إنتاج فيديو جديد بحذف <strong>{detectedSilence.length}</strong> منطقة صامتة تم العثور عليها.</p>
+                                    </div>
+
+                                    {!hasSilence ? (
+                                        <div className={styles.warningBox}>
+                                            لم يتم العثور على مناطق صامتة بعد. يرجى ضبط الإعدادات للبدء.
+                                        </div>
+                                    ) : (
+                                        <div className={styles.actionGrid}>
+                                            <button 
+                                                className={styles.primaryExportBtn}
+                                                onClick={() => exportWithoutSilence()}
+                                            >
+                                                <div className={styles.btnContent}>
+                                                    <Video size={24} />
+                                                    <div className={styles.btnText}>
+                                                        <span>تصدير فيديو عالي الجودة</span>
+                                                        <small>بدون فراغات (MP4/MOV)</small>
+                                                    </div>
+                                                </div>
+                                                <div className={styles.btnArrow}>→</div>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                /* 2. Subtitle Mode Export Options */
+                                <div className={styles.section}>
+                                    <div className={styles.sectionHeader}>
+                                        <div className={styles.sectionIcon}><FileText size={18} /></div>
+                                        <h3>تصدير ملفات الترجمة</h3>
+                                    </div>
+
+                                    {!hasSubtitles ? (
+                                        <div className={styles.warningBox}>
+                                            لا توجد نصوص ترجمة لتصديرها. يرجى إنشاء ترجمة أولاً.
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {availableTracks.length > 1 && (
+                                                <div className={styles.trackSelector}>
+                                                    <span className={styles.label}>اختر المسار</span>
+                                                    <div className={styles.trackList}>
+                                                        {availableTracks.map(track => (
+                                                            <button
+                                                                key={track.id}
+                                                                onClick={() => setSelectedTrackId(track.id)}
+                                                                className={`${styles.trackChip} ${effectiveTrack.id === track.id ? styles.activeTrack : ''}`}
+                                                            >
+                                                                {track.name}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className={styles.formatGrid}>
+                                                <div className={styles.formatCard} onClick={() => handleDownload('srt')}>
+                                                    <div className={styles.formatIcon}><FileCode size={24} color="#f59e0b" /></div>
+                                                    <div className={styles.formatInfo}>
+                                                        <span className={styles.formatName}>SRT Standard</span>
+                                                        <span className={styles.formatDesc}>الصيغة القياسية للأفلام واليوتيوب</span>
+                                                    </div>
+                                                    <Download size={16} className={styles.dlIcon} />
+                                                </div>
+
+                                                <div className={styles.formatCard} onClick={() => handleDownload('vtt')}>
+                                                    <div className={styles.formatIcon}><Globe size={24} color="#3b82f6" /></div>
+                                                    <div className={styles.formatInfo}>
+                                                        <span className={styles.formatName}>VTT Web</span>
+                                                        <span className={styles.formatDesc}>متوافقة مع مشغلات الويب الحديثة</span>
+                                                    </div>
+                                                    <Download size={16} className={styles.dlIcon} />
+                                                </div>
+
+                                                <div className={styles.formatCard} onClick={() => handleDownload('txt')}>
+                                                    <div className={styles.formatIcon}><FileText size={24} color="#ef4444" /></div>
+                                                    <div className={styles.formatInfo}>
+                                                        <span className={styles.formatName}>TXT Plain</span>
+                                                        <span className={styles.formatDesc}>نص مجرد بدون توقيتات زمنية</span>
+                                                    </div>
+                                                    <Download size={16} className={styles.dlIcon} />
+                                                </div>
+
+                                                <div className={styles.formatCard} onClick={() => handleRemoteExport('xml')}>
+                                                    <div className={styles.formatIcon}><Monitor size={24} color="#8b5cf6" /></div>
+                                                    <div className={styles.formatInfo}>
+                                                        <span className={styles.formatName}>Adobe Premiere</span>
+                                                        <span className={styles.formatDesc}>ملف XML جاهز لبرامج المونتاج</span>
+                                                    </div>
+                                                    <Download size={16} className={styles.dlIcon} />
+                                                </div>
+                                            </div>
+
+                                            <div className={styles.divider} />
+
+                                            <div className={styles.burnSection}>
+                                                <div className={styles.burnInfo}>
+                                                    <div className={styles.burnTitle}>
+                                                        <Flame size={20} color="#f59e0b" />
+                                                        <h3>حرق الترجمة (Hard-code)</h3>
+                                                    </div>
+                                                    <p>دمج الترجمة داخل الفيديو بشكل دائم بأعلى جودة ممكنة.</p>
+                                                </div>
+                                                <button 
+                                                    className={styles.burnBtn}
+                                                    onClick={() => handleRemoteExport('burn-in')}
+                                                    disabled={isExporting || isVideoUploading}
+                                                >
+                                                    {isExporting ? 'جاري المعالجة...' : 'بدء الحرق الآن'}
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Cleanup Section */}
+                            <div className={styles.cleanupSection}>
+                                <div className={styles.cleanupInfo}>
+                                    <h4>إنهاء العمل</h4>
+                                    <p>حذف جميع الملفات المرفوعة والمؤقتة من السيرفر.</p>
+                                </div>
+                                <button
+                                    className={`${styles.cleanupBtn} ${isCleaned ? styles.cleaned : ''}`}
+                                    onClick={handleCleanup}
+                                    disabled={isCleaning || isCleaned}
+                                >
+                                    {isCleaning ? 'جاري التنظيف...' : isCleaned ? <><CheckCircle2 size={16} /> تم الحذف</> : <><Trash2 size={16} /> تنظيف السيرفر</>}
+                                </button>
                             </div>
                         </div>
                     )}
-
-                    <div className={styles.section}>
-                        <span className={styles.label}>اختر الصيغة / Choose Format</span>
-                        <div className={styles.grid}>
-                            <button className={styles.exportBtn} onClick={() => handleDownload('srt')}>
-                                <span className={styles.icon}>📄</span>
-                                <span className={styles.ext}>SRT</span>
-                                <span className={styles.label}>Standard</span>
-                            </button>
-                            <button className={styles.exportBtn} onClick={() => handleDownload('vtt')}>
-                                <span className={styles.icon}>🌐</span>
-                                <span className={styles.ext}>VTT</span>
-                                <span className={styles.label}>Web</span>
-                            </button>
-                            <button className={styles.exportBtn} onClick={() => handleDownload('txt')}>
-                                <span className={styles.icon}>📝</span>
-                                <span className={styles.ext}>TXT</span>
-                                <span className={styles.label}>Text Only</span>
-                            </button>
-                            <button className={styles.exportBtn} onClick={() => handleRemoteExport('xml')}>
-                                <span className={styles.icon}>🎬</span>
-                                <span className={styles.ext}>XML</span>
-                                <span className={styles.label}>Adobe Premiere</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className={styles.burnSection}>
-                        <span className={styles.icon}>🔥</span>
-                        <h3>حرق الترجمة على الفيديو</h3>
-                        <p className={styles.label}>Burn subtitles into video (Permanent)</p>
-                        
-                        {isVideoUploading && (
-                            <div className={styles.uploadWarning}>
-                                ⏳ جاري رفع الفيديو الأصلي لضمان الجودة... الرجاء الانتظار.
-                            </div>
-                        )}
-
-                        <button
-                            className={styles.burnBtn}
-                            onClick={() => handleRemoteExport('burn-in')}
-                            disabled={isExporting || isVideoUploading}
-                        >
-                            {isExporting ? '🔥 جاري حرق الترجمة...' : isVideoUploading ? 'بانتظار الرفع...' : 'بدء الحرق - Start Burn-in'}
-                        </button>
-                    </div>
-
-                    <div className={styles.cleanupSection}>
-                        <span className={styles.icon}>🧹</span>
-                        <h3>إنهاء المشروع وتنظيف الملفات</h3>
-                        <button
-                            className={styles.cleanupBtn}
-                            onClick={handleCleanup}
-                            disabled={isCleaning || isCleaned}
-                            style={{
-                                background: isCleaned ? 'transparent' : 'rgba(239, 68, 68, 0.1)',
-                                color: isCleaned ? 'var(--text-muted)' : '#ef4444',
-                                border: `1px solid ${isCleaned ? 'var(--border-color)' : '#ef4444'}`
-                            }}
-                        >
-                            {isCleaning ? 'جاري التنظيف...' : isCleaned ? '✅ تم التنظيف' : 'حذف ملفات المشروع - Clear Project Files'}
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

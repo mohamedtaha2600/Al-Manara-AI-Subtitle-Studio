@@ -11,13 +11,15 @@ interface VisibilitySectionProps {
     style: SubtitleStyle
     onToggle: (id: string) => void
     onSetStyle: (style: Partial<SubtitleStyle>) => void
+    dir?: 'ltr' | 'rtl'
 }
 
 export const VisibilitySection: React.FC<VisibilitySectionProps> = ({
     isActive,
     style,
     onToggle,
-    onSetStyle
+    onSetStyle,
+    dir = 'ltr'
 }) => {
     return (
         <SectionWrapper
@@ -27,11 +29,12 @@ export const VisibilitySection: React.FC<VisibilitySectionProps> = ({
             isActive={isActive}
             onToggle={onToggle}
             theme="orange"
+            dir={dir}
         >
             <div className={styles.sectionContent}>
                 <div className={styles.row}>
                     <div className={styles.label}>
-                        <Type size={14} /> علامات الترقيم (Punctuation)
+                        <Type size={14} /> <span>علامات الترقيم (Punctuation)</span>
                     </div>
                     <label className={styles.switch}>
                         <input
@@ -45,7 +48,7 @@ export const VisibilitySection: React.FC<VisibilitySectionProps> = ({
 
                 <div className={styles.row}>
                     <div className={styles.label}>
-                        <Hash size={14} /> التشكيل (Diacritics)
+                        <Hash size={14} /> <span>التشكيل (Diacritics)</span>
                     </div>
                     <label className={styles.switch}>
                         <input

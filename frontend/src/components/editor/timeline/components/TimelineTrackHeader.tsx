@@ -13,20 +13,19 @@ const TimelineTrackHeader: React.FC<TimelineTrackHeaderProps> = ({ trackId }) =>
         toggleTrackLock,
         toggleTrackVisibility,
         setTrackConfig,
-        selectedTrackId, // Keep for legacy/active check
-        selectedTrackIds, // New multi-select
+        selectedTrackId, 
         setSelectedTrackId,
-        toggleTrackSelection, // New action
-        tracks // Get dynamic tracks
+        setActiveTrack,
+        tracks,
+        activePanel // Added to determine color
     } = useProjectStore();
 
-    // Check if this track is in the selected set
-    const isTargeted = selectedTrackIds?.includes(trackId) || selectedTrackId === trackId;
+    // Check if this track is the ACTIVE one
+    const isTargeted = selectedTrackId === trackId;
 
     // Resolve Config (Static or Dynamic)
     let config = trackConfigs[trackId];
     if (!config) {
-        // Fallback: Find in dynamic tracks
         const track = tracks?.find(t => t.id === trackId);
         if (track) {
             config = {
@@ -38,32 +37,21 @@ const TimelineTrackHeader: React.FC<TimelineTrackHeaderProps> = ({ trackId }) =>
                 isSolo: false
             };
         } else {
-            return null; // Truly not found
+            return null;
         }
     }
 
-    const isSubTrack = trackId === 'subtitle-track';
-    const isVidTrack = trackId === 'video-track';
     const isWaveTrack = trackId === 'waveform-track';
 
     const handleHeaderClick = (e: React.MouseEvent) => {
-        // Multi-select Toggle Logic
-        // Check if currently selected
-        const isCurrentlySelected = selectedTrackIds?.includes(trackId);
+        setSelectedTrackId(trackId);
+        setActiveTrack(trackId);
+    };
 
-        // 1. Toggle Selection State (Add/Remove from Set)
-        toggleTrackSelection(trackId);
-
-        // 2. Manage Active Focus (Singular ID)
-        if (isCurrentlySelected) {
-            // Deselecting: If it was the active focus, clear it to avoid "stuck" highlight
-            if (selectedTrackId === trackId) {
-                setSelectedTrackId(null);
-            }
-        } else {
-            // Selecting: Set as active focus
-            setSelectedTrackId(trackId);
-        }
+    // Determine Lock Active Class
+    const getLockActiveClass = () => {
+        if (!config.isLocked) return '';
+        return activePanel === 'silence' ? styles.lockActiveSilence : styles.lockActiveSubtitle;
     };
 
     return (
@@ -73,7 +61,7 @@ const TimelineTrackHeader: React.FC<TimelineTrackHeaderProps> = ({ trackId }) =>
             style={{ cursor: 'pointer' }}
         >
             <div className={styles.trackInfo}>
-                <div className={`${styles.trackCheckmark} ${styles.visible}`}>
+                <div className={`${styles.trackCheckmark} ${isTargeted ? styles.visible : ''}`}>
                     <Check size={12} />
                 </div>
                 <span className={styles.trackName}>{config.label}</span>
@@ -84,7 +72,7 @@ const TimelineTrackHeader: React.FC<TimelineTrackHeaderProps> = ({ trackId }) =>
                 {isWaveTrack && (
                     <>
                         <button
-                            className={`${styles.iconBtn} ${config.isSolo ? styles.activeState : ''} ${styles.soloBtn}`}
+                            className={`${styles.iconBtn} ${config.isSolo ? styles.soloActive : ''}`}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setTrackConfig(trackId, { isSolo: !config.isSolo });
@@ -94,7 +82,7 @@ const TimelineTrackHeader: React.FC<TimelineTrackHeaderProps> = ({ trackId }) =>
                             S
                         </button>
                         <button
-                            className={`${styles.iconBtn} ${config.isMuted ? styles.activeState : ''}`}
+                            className={`${styles.iconBtn} ${config.isMuted ? styles.muteActive : ''}`}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setTrackConfig(trackId, { isMuted: !config.isMuted });
@@ -108,7 +96,7 @@ const TimelineTrackHeader: React.FC<TimelineTrackHeaderProps> = ({ trackId }) =>
 
                 {/* Lock Toggle */}
                 <button
-                    className={`${styles.iconBtn} ${config.isLocked ? styles.active : ''}`}
+                    className={`${styles.iconBtn} ${getLockActiveClass()}`}
                     onClick={(e) => {
                         e.stopPropagation();
                         toggleTrackLock(trackId);
@@ -120,7 +108,7 @@ const TimelineTrackHeader: React.FC<TimelineTrackHeaderProps> = ({ trackId }) =>
 
                 {/* Visibility Toggle */}
                 <button
-                    className={`${styles.iconBtn} ${config.isHidden ? styles.active : ''}`}
+                    className={`${styles.iconBtn} ${config.isHidden ? styles.eyeDisabled : ''}`}
                     onClick={(e) => {
                         e.stopPropagation();
                         toggleTrackVisibility(trackId);
