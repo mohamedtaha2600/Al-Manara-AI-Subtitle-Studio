@@ -224,7 +224,7 @@ export default function VisTimelineWrapper() {
             // Re-use calculation logic
             // startLeft=160 (sidebar), scaleWidth is currentScale pixels per currentScale seconds
             const pxToTime = (px: number) => {
-                const relativeX = px - (SIDEBAR_WIDTH - scrollLeft);
+                const relativeX = px + scrollLeft;
                 return (relativeX / currentScaleWidth) * currentScale;
             };
 
@@ -276,7 +276,7 @@ export default function VisTimelineWrapper() {
             // Convert Pixels to Time
             // startLeft=160 (sidebar), scaleWidth is currentScale pixels per currentScale seconds
             const pxToTime = (px: number) => {
-                const relativeX = px - (SIDEBAR_WIDTH - scrollLeft); // Offset by sidebar and scroll
+                const relativeX = px + scrollLeft; // Offset only by scroll now
                 return (relativeX / currentScaleWidth) * currentScale;
             };
 
@@ -405,7 +405,7 @@ export default function VisTimelineWrapper() {
                         <div
                             className={styles.snapGuideLine}
                             style={{
-                                left: SIDEBAR_WIDTH + (snapLineTime / currentScale) * currentScaleWidth - scrollLeft,
+                                left: (snapLineTime / currentScale) * currentScaleWidth - scrollLeft,
                                 top: 0,
                                 height: '100%',
                             }}
@@ -419,7 +419,7 @@ export default function VisTimelineWrapper() {
                         scale={currentScale}
                         scaleWidth={currentScaleWidth}
                         scaleSplitCount={currentSplitCount}
-                        startLeft={SIDEBAR_WIDTH}
+                        startLeft={0}
                         getScaleRender={(time) => {
                             if (time >= 3600) {
                                 const hrs = Math.floor(time / 3600);

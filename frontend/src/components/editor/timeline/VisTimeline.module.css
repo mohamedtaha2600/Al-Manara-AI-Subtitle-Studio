@@ -50,9 +50,12 @@
 }
 
 .timelineEditorContainer {
-    width: 100%;
+    position: absolute;
+    left: var(--sidebar-width);
+    top: 0;
+    width: calc(100% - var(--sidebar-width));
     height: 100%;
-    position: relative;
+    overflow: hidden;
 }
 
 /* Sidebar Layer (Absolute Overlays) */
@@ -62,10 +65,10 @@
     top: 0;
     width: var(--sidebar-width);
     height: 100%;
-    background-color: #1f1f1f;
+    background-color: #1a1a1a; /* Darker, solid background */
     border-right: 1px solid #333;
-    z-index: 200;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 300; /* Higher than timeline content */
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
     pointer-events: none;
