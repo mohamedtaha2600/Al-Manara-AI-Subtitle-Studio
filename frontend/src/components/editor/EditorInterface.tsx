@@ -152,7 +152,6 @@ export default function EditorInterface() {
     return (
         <div className={styles.container}>
             <Sidebar />
-
             <main className={styles.mainContent}>
                 {/* Background Upload Notification */}
                 {isVideoUploading && (
@@ -217,21 +216,11 @@ export default function EditorInterface() {
                             <span className={styles.badge}>تم التحميل</span>
                         )}
                     </div>
-                    <div className={styles.headerRight}>
-                        <button
-                            className={styles.exportBtn}
-                            disabled={segments.length === 0}
-                            onClick={() => setExportModalOpen(true)}
-                        >
-                            <ExportIcon />
-                            تصدير
-                        </button>
-                    </div>
                 </header>
 
                 {/* Editor Area */}
                 <div className={styles.editorArea}>
-                    {/* Video Player Section */}
+                    {/* Video Player Section (Moved to the Right in RTL) */}
                     <section className={styles.playerSection}>
                         {videoFile ? (
                             <VideoPlayer />
@@ -245,7 +234,7 @@ export default function EditorInterface() {
                         )}
                     </section>
 
-                    {/* Right Panel - Tabs (same structure, different content based on mode) */}
+                    {/* Right Panel - Tabs (Moved to the Left in RTL) */}
                     <aside className={styles.rightPanel}>
                         <div className={styles.panelTabs}>
                             <button
@@ -284,8 +273,6 @@ export default function EditorInterface() {
                     />
                     <Timeline />
                 </section>
-
-                {/* Status Bar */}
                 <StatusBar />
             </main>
 
