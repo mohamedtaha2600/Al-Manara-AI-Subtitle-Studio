@@ -64,22 +64,41 @@ async def run_burn_in_task(job_id: str, request: ExportRequest):
         burn_in_jobs[job_id]["progress"] = 40
         burn_in_jobs[job_id]["message"] = "جاري دمج الترجمة مع الفيديو (قد يستغرق ذلك وقتاً)..."
         
-        # 2. FFmpeg run
-        input_video = os.path.join(UPLOADS_DIR, request.video_id)
+        # 2. Find the actual input video file (it might have an extension)
+        input_video = None
+        for filename in os.listdir(UPLOADS_DIR):
+            if filename.startswith(request.video_id):
+                input_video = os.path.join(UPLOADS_DIR, filename)
+                break
+        
+        if not input_video:
+            raise FileNotFoundError(f"Video file not found for ID: {request.video_id}")
+            
         output_video_name = f"burnin_{request.video_id}_{job_id}.mp4"
         output_video = os.path.join(EXPORTS_DIR, output_video_name)
         
-        # Windows-specific path escaping for FFmpeg subtitles filter
-        srt_path_esc = temp_srt.replace(":", "\\:").replace("\\", "/")
+        # Cross-platform path escaping for FFmpeg subtitles filter
+        # On Linux (HuggingFace), absolute paths work best with filename=''
+        # On Windows, we need to escape the colon (e.g. C\:...)
+        srt_path_esc = temp_srt.replace("\\", "/")
+        if os.name == 'nt':
+            srt_path_esc = srt_path_esc.replace(":", "\\:")
+            
         cmd = [
             "ffmpeg", "-y", "-i", input_video,
-            "-vf", f"subtitles='{srt_path_esc}'",
+            "-vf", f"subtitles=filename='{srt_path_esc}'",
             "-c:v", "libx264", "-preset", "fast",
+            "-crf", "23", # Good balance of quality/size
             "-c:a", "copy",
             output_video
         ]
         
-        subprocess.run(cmd, check=True)
+        print(f"[BURN-IN] Running command: {' '.join(cmd)}")
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            print(f"[BURN-IN] FFmpeg Error: {result.stderr}")
+            raise Exception(f"FFmpeg failed with exit code {result.returncode}: {result.stderr}")
         
         burn_in_jobs[job_id]["status"] = "completed"
         burn_in_jobs[job_id]["progress"] = 100
