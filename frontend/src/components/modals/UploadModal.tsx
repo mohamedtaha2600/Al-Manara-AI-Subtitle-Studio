@@ -71,112 +71,85 @@ export default function UploadModal() {
             return
         }
 
-        setIsUploading(true)
-        setError(null)
-        setUploadProgress(0)
-        addLog('info', `🚀 بدء معالجة "توربو": ${file.name}`)
+        const isVideo = videoExts.includes(ext)
+        const localUrl = URL.createObjectURL(file)
 
+        // 1. INSTANT UI FEEDBACK
+        setUploadModalOpen(false) // Close modal immediately
+        setIsUploading(false)     // Reset local uploading state
+        
+        addLog('info', `🚀 بدء معالجة "المنارة توربو": ${file.name}`)
+
+        // 2. Set Preview
+        setVideoFile({
+            id: 'temp-' + Date.now(),
+            name: file.name,
+            url: localUrl,
+            duration: 0,
+            type: isVideo ? 'video' : 'audio'
+        })
+
+        // 3. Start Background Upload (This handles the "Water Fill" vibes)
+        startBackgroundUpload(file, isVideo)
+    }
+
+    const startBackgroundUpload = async (file: File, isVideo: boolean) => {
+        const { setIsVideoUploading, setVideoUploadProgress, setVideoFile, addLog, videoFile } = useProjectStore.getState()
+        
+        setIsVideoUploading(true)
+        setVideoUploadProgress(0)
+        
         try {
-            const isVideo = videoExts.includes(ext)
-            const localUrl = URL.createObjectURL(file)
-
-            // Step 1: Immediate Preview & UI Switch
-            setVideoFile({
-                id: 'temp-' + Date.now(),
-                name: file.name,
-                url: localUrl,
-                duration: 0,
-                type: isVideo ? 'video' : 'audio'
-            })
-            
-            // CLOSE MODAL IMMEDIATELY - User can now see the timeline
-            handleClose()
-            addLog('info', '✅ تم تحميل المعاينة المحلية. جاري الرفع والتحليل في الخلفية...')
-
             let uploadFile: File | Blob = file
-            let audioFileId = ''
-
-            // Step 2: Turbo Extraction (if video)
+            
+            // Step A: Turbo Extraction (if video, for transcription)
             if (isVideo) {
+                addLog('info', '🔹 جاري استخراج الصوت محلياً للتسريع...')
                 const audioBlob = await extractAudioFromVideo(file)
                 uploadFile = new File([audioBlob], 'extracted_audio.wav', { type: 'audio/wav' })
             }
 
-            // Step 3: Upload Audio/Main File for Transcription
+            // Step B: Upload for Transcription (Progress 0-50%)
+            addLog('info', '📤 جاري رفع المسار للمحرك...')
             const formData = new FormData()
             formData.append('file', uploadFile)
 
-            const uploadRes = await fetch(`${API_BASE_URL}/upload`, {
-                method: 'POST',
-                body: formData,
-            })
-
-            if (!uploadRes.ok) throw new Error('فشل رفع مسار الصوت')
-            const uploadData = await uploadRes.json()
-            audioFileId = uploadData.file_id
-
-            // Update store with server ID
-            const currentVideo = useProjectStore.getState().videoFile
-            if (currentVideo) {
-                setVideoFile({ ...currentVideo, id: audioFileId })
-            }
-
-            // Step 4: Background Video Upload (if video)
-            if (isVideo) {
-                startBackgroundVideoUpload(file)
-            }
-        } catch (err) {
-            addLog('error', `خطأ في المعالجة: ${err instanceof Error ? err.message : 'Unknown error'}`)
-        } finally {
-            setIsUploading(false)
-        }
-    }
-
-    const startBackgroundVideoUpload = (file: File) => {
-        const { setIsVideoUploading, setVideoUploadProgress, addLog } = useProjectStore.getState()
-        
-        setIsVideoUploading(true)
-        setVideoUploadProgress(0)
-        addLog('info', '☁️ بدأ رفع الفيديو الأصلي في الخلفية...')
-
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const xhr = new XMLHttpRequest()
-        xhr.open('POST', `${API_BASE_URL}/upload`, true)
-
-        xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-                const percent = Math.round((e.loaded / e.total) * 100)
-                setVideoUploadProgress(percent)
-            }
-        }
-
-        xhr.onload = () => {
-            if (xhr.status === 200) {
-                try {
-                    const data = JSON.parse(xhr.responseText)
-                    const { videoFile, setVideoFile } = useProjectStore.getState()
-                    if (videoFile) {
-                        // Crucial: Update the videoFile ID to the real video ID (was audio ID)
-                        setVideoFile({ ...videoFile, id: data.file_id })
-                    }
-                    addLog('success', '✅ اكتمل رفع الفيديو الأصلي! التصدير متاح الآن بأقصى جودة.')
-                } catch (e) {
-                    addLog('warning', '⚠️ اكتمل الرفع ولكن فشل تحديث المعرف ID.')
+            const xhr = new XMLHttpRequest()
+            xhr.open('POST', `${API_BASE_URL}/upload`, true)
+            
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100)
+                    setVideoUploadProgress(percent)
                 }
-            } else {
-                addLog('warning', '⚠️ فشل رفع الفيديو الأصلي في الخلفية، قد لا يعمل التصدير بشكل صحيح.')
             }
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText)
+                    const currentVideo = useProjectStore.getState().videoFile
+                    if (currentVideo) {
+                        setVideoFile({ ...currentVideo, id: data.file_id })
+                    }
+                    addLog('success', '✅ الملف جاهز للتحليل والترجمة!')
+                    setIsVideoUploading(false)
+                } else {
+                    addLog('error', '❌ فشل رفع الملف للسيرفر.')
+                    setIsVideoUploading(false)
+                }
+            }
+
+            xhr.onerror = () => {
+                addLog('error', '❌ انقطع اتصال الرفع.')
+                setIsVideoUploading(false)
+            }
+
+            xhr.send(formData)
+
+        } catch (err) {
+            addLog('error', `❌ خطأ في المعالجة: ${err instanceof Error ? err.message : 'Unknown error'}`)
             setIsVideoUploading(false)
         }
-
-        xhr.onerror = () => {
-            addLog('error', '❌ انقطع اتصال رفع الفيديو في الخلفية.')
-            setIsVideoUploading(false)
-        }
-
-        xhr.send(formData)
     }
 
     const pollTranscriptionStatus = async (jobId: string) => {

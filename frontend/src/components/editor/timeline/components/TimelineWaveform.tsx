@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import styles from './TimelineWaveform.module.css'
+import { useProjectStore } from '@/store/useProjectStore'
 
 // Segment type from parent
 interface SubtitleSegment {
@@ -125,7 +126,7 @@ const TimelineWaveform = ({
         }
     }, [pixelsPerSecond, isReady])
 
-    const { uploadProgress, isVideoUploading } = useProjectStore()
+    const { videoUploadProgress, isVideoUploading } = useProjectStore()
 
     return (
         <div
@@ -142,11 +143,11 @@ const TimelineWaveform = ({
                 <div 
                     className={styles.uploadWaterFill}
                     style={{
-                        height: `${uploadProgress}%`,
+                        height: `${videoUploadProgress}%`,
                     }}
                 >
                     <div className={styles.uploadText}>
-                        جاري الرفع... {Math.round(uploadProgress)}%
+                        جاري الرفع... {Math.round(videoUploadProgress)}%
                     </div>
                 </div>
             )}
