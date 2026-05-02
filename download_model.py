@@ -84,6 +84,15 @@ def download_model(model_name: str):
         print(f"\n[ERROR] Download failed: {e}")
         return False
 
+import nltk
+try:
+    print("📥 Downloading NLTK punkt...")
+    nltk.download('punkt', quiet=True)
+    nltk.download('punkt_tab', quiet=True)
+    print("✅ NLTK data ready.")
+except Exception as e:
+    print(f"⚠️ NLTK download failed: {e}")
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python download_model.py <model_name>")

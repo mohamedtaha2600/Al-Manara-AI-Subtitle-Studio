@@ -1,24 +1,17 @@
 'use client'
 
-/**
- * Sidebar Component
- * شريط التنقل الجانبي
- */
-
-import { useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import styles from './Sidebar.module.css'
 import {
     Captions,
-    Languages,
     Scissors,
     Sparkles,
     Plus,
     Upload,
-    Settings
+    Settings,
+    LayoutDashboard
 } from 'lucide-react'
 
-// Wireless Component - No Props Needed
 export default function Sidebar() {
     const {
         activePanel,
@@ -26,58 +19,70 @@ export default function Sidebar() {
         setUploadModalOpen,
         setImportModalOpen,
         setSettingsModalOpen,
-        isSettingsModalOpen // Optional if we need to show active state
+        setCurrentView,
+        isSettingsModalOpen
     } = useProjectStore()
 
     const navItems = [
         {
             id: 'subtitles',
-            icon: <Captions size={20} />,
-            label: 'Translation',
+            icon: <Captions size={22} />,
             labelAr: 'ترجمة',
         },
         {
             id: 'silence',
-            icon: <Scissors size={20} />,
-            label: 'Silence Remover',
-            labelAr: 'إزالة الصمت',
+            icon: <Scissors size={22} />,
+            labelAr: 'قص',
         },
         {
             id: 'enhance',
-            icon: <Sparkles size={20} />,
-            label: 'Enhance',
+            icon: <Sparkles size={22} />,
             labelAr: 'تحسين',
         },
     ]
 
     return (
         <aside className={styles.sidebar}>
-            {/* Logo */}
-            <div className={styles.logoContainer}>
-                <div className={styles.logoIcon}>
-                    <ManaraIcon />
-                </div>
+            {/* Logo / Home */}
+            <div className={styles.logoContainer} onClick={() => setCurrentView('dashboard')} style={{ cursor: 'pointer' }}>
+                <ManaraIcon />
             </div>
 
-            {/* Upload Button */}
+            {/* Main Action - New Project */}
             <button
                 className={styles.uploadBtn}
-                onClick={() => setUploadModalOpen(true)}
-                title="رفع ملف - Upload"
+                onClick={() => {
+                    setCurrentView('dashboard');
+                    // In dashboard, handleNewProject will be called or just stay there
+                }}
+                title="الرئيسية"
             >
-                <Plus size={24} />
+                <LayoutDashboard size={24} />
             </button>
 
-            {/* Import SRT Button */}
+            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.05)', margin: '10px 0' }} />
+
+            {/* Editor Actions */}
+            <button
+                className={styles.importBtn}
+                onClick={() => setUploadModalOpen(true)}
+                title="رفع فيديو جديد"
+            >
+                <Plus size={22} />
+            </button>
+
             <button
                 className={styles.importBtn}
                 onClick={() => setImportModalOpen(true)}
-                title="استيراد ترجمة - Import SRT"
+                title="استيراد ترجمة"
+                style={{ marginTop: '5px' }}
             >
-                <Upload size={20} />
+                <Upload size={18} />
             </button>
 
-            {/* Navigation */}
+            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.05)', margin: '10px 0' }} />
+
+            {/* Tool Sections */}
             <nav className={styles.nav}>
                 {navItems.map((item) => (
                     <button
@@ -99,28 +104,21 @@ export default function Sidebar() {
                     title="الإعدادات"
                     onClick={() => setSettingsModalOpen(true)}
                 >
-                    <Settings size={20} />
+                    <Settings size={22} />
                 </button>
             </div>
         </aside>
     )
 }
 
-// Icons
 const ManaraIcon = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
         <path
             d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-            stroke="url(#gradient)"
+            stroke="#f59e0b"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
         />
-        <defs>
-            <linearGradient id="gradient" x1="2" y1="2" x2="22" y2="22">
-                <stop stopColor="#6366f1" />
-                <stop offset="1" stopColor="#a855f7" />
-            </linearGradient>
-        </defs>
     </svg>
 )

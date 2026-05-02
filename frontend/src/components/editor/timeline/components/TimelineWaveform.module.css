@@ -1,77 +1,86 @@
 /* Waveform Track */
 .waveformTrack {
     position: relative;
-    min-height: 120px;
-    display: flex;
-    align-items: stretch;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(0, 0, 0, 0.2);
-    margin-top: 8px;
+    width: 100%;
+    height: 100%;
+    background: #000;
 }
 
 .waveformContent {
     position: relative;
-    flex: 1;
-    overflow: hidden;
-    /* Important for WaveSurfer */
+    width: 100%;
+    height: 100%;
 }
 
 .waveformContainer {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
+    background: #000;
+    position: relative;
 }
 
 .waveformPlaceholder {
-    flex: 1;
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: repeating-linear-gradient(90deg,
-            rgba(212, 160, 18, 0.05) 0px,
-            rgba(212, 160, 18, 0.02) 2px,
-            transparent 2px,
-            transparent 4px);
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+/* Water Fill Effect */
+.uploadWaterFill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(0deg, rgba(245, 158, 11, 0.3) 0%, rgba(245, 158, 11, 0.1) 100%);
+    z-index: 10;
+    pointer-events: none;
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border-top: 1px solid rgba(245, 158, 11, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.uploadWaterFill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: waveShimmer 2s infinite linear;
+}
+
+@keyframes waveShimmer {
+    from { transform: translateX(0); }
+    to { transform: translateX(50%); }
+}
+
+.uploadText {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #f59e0b;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    opacity: 0.8;
 }
 
 /* HIDE Internal Waveform Scrollbar completely */
 .waveformContainer>div::part(scroll)::-webkit-scrollbar {
     display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    background: transparent;
 }
 
-/* Speech Detection Zones */
-.zonesLayer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    /* Same width as container, but we render segments absolutely */
-    z-index: 10;
-    pointer-events: none;
-}
-
-.zone {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    background: linear-gradient(180deg, rgba(34, 197, 94, 0.5) 0%, rgba(34, 197, 94, 0.3) 100%);
-    border-bottom: 3px solid #22c55e;
-    border-top: 1px solid rgba(34, 197, 94, 0.5);
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
-}
-
-/* Silence Zones Layer - Yellow Highlight */
 .silenceZonesLayer {
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
-    z-index: 8;
     pointer-events: none;
 }
 
@@ -79,24 +88,7 @@
     position: absolute;
     top: 0;
     height: 100%;
-    background: linear-gradient(180deg,
-            rgba(251, 191, 36, 0.6) 0%,
-            rgba(245, 158, 11, 0.4) 50%,
-            rgba(251, 191, 36, 0.3) 100%);
-    border-bottom: 3px solid #f59e0b;
-    border-top: 1px solid rgba(245, 158, 11, 0.5);
-    box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
-    animation: silencePulse 2s ease-in-out infinite;
-}
-
-@keyframes silencePulse {
-
-    0%,
-    100% {
-        opacity: 0.7;
-    }
-
-    50% {
-        opacity: 0.9;
-    }
+    background: rgba(234, 179, 8, 0.2); /* Muted yellow */
+    border-left: 1px solid rgba(234, 179, 8, 0.4);
+    border-right: 1px solid rgba(234, 179, 8, 0.4);
 }

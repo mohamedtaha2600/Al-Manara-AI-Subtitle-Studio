@@ -95,7 +95,7 @@ export default function ProgressLog({ filterSilence = false }: ProgressLogProps)
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `aiscrip-log-${new Date().toISOString()}.txt`
+        a.download = `almanara-log-${new Date().toISOString()}.txt`
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)

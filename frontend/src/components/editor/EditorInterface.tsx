@@ -50,6 +50,8 @@ export default function EditorInterface() {
         setProjectName,
         setUploadModalOpen,
         setExportModalOpen,
+        isVideoUploading,
+        videoUploadProgress
     } = useProjectStore()
 
     // Check if we're in silence mode
@@ -152,6 +154,26 @@ export default function EditorInterface() {
             <Sidebar />
 
             <main className={styles.mainContent}>
+                {/* Background Upload Notification */}
+                {isVideoUploading && (
+                    <div style={{
+                        background: 'rgba(245, 158, 11, 0.1)',
+                        borderBottom: '1px solid rgba(245, 158, 11, 0.2)',
+                        padding: '6px 20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '15px',
+                        fontSize: '0.8rem',
+                        zIndex: 100,
+                        backdropFilter: 'blur(10px)'
+                    }}>
+                        <div className="spinner-small" style={{ width: '12px', height: '12px', border: '2px solid #f59e0b', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                        <span style={{ color: '#f59e0b', fontWeight: 600 }}>يتم رفع الفيديو الأصلي في الخلفية... {Math.round(videoUploadProgress)}%</span>
+                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>(يمكنك البدء في العمل الآن، التصدير سيتوفر فور الاكتمال)</span>
+                    </div>
+                )}
+
                 {/* Header */}
                 <header className={styles.header}>
                     <div className={styles.headerLeft}>

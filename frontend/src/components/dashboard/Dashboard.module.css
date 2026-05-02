@@ -1,200 +1,230 @@
 .container {
     display: flex;
     height: 100vh;
-    width: 100vw;
-    background: var(--bg-primary);
-    color: var(--text-primary);
+    background: #0a0a0a;
+    color: #fff;
+    font-family: 'Inter', 'Outfit', sans-serif;
+    direction: ltr; /* Sidebar stays left */
     overflow: hidden;
-    font-family: var(--font-arabic);
 }
 
+/* Sidebar */
 .sidebar {
     width: 260px;
-    background: var(--bg-secondary);
-    border-left: 1px solid var(--border-color);
-    /* RTL: left border because sidebar is on right? No, standard is left. Wait, Arabic UI usually has sidebar on Right. The codebase seems to use flex-direction row, so sidebar is typically first child. Previous sidebar was likely on left. User said "longitudinal bar on the left". */
-    border-right: 1px solid var(--border-color);
-    /* Standard left sidebar */
+    background: rgba(15, 15, 15, 0.7);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
-    padding: var(--space-md);
-    flex-shrink: 0;
+    padding: 30px 20px;
+    z-index: 10;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    margin-bottom: var(--space-xl);
-    background: var(--accent-gradient);
-    background-clip: text;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    padding: 0 var(--space-xs);
+    margin-bottom: 50px;
+    padding-right: 15px;
+    text-align: right;
 }
 
 .nav {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
-    flex: 1;
+    gap: 8px;
 }
 
 .navItem {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-md);
-    color: var(--text-muted);
+    gap: 15px;
+    padding: 12px 18px;
+    border-radius: 14px;
+    color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
 }
 
 .navItem:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
 }
 
 .navItem.active {
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--accent-primary);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+    color: #f59e0b;
+    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.2);
 }
 
 .navIcon {
-    width: 20px;
-    height: 20px;
-}
-
-.main {
-    flex: 1;
-    padding: var(--space-xl);
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xl);
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.welcome h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: var(--space-xs);
-}
-
-.welcome p {
-    color: var(--text-muted);
-}
-
-.actionsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: var(--space-lg);
-}
-
-.actionCard {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-md);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.actionCard::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--accent-gradient);
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.actionCard:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent-primary);
-}
-
-.actionCard:hover::before {
-    opacity: 1;
-}
-
-.cardIcon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-md);
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--accent-primary);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.cardTitle {
+/* Main Content */
+.main {
+    flex: 1;
+    padding: 50px 60px;
+    overflow-y: auto;
+    position: relative;
+    direction: rtl; /* Content is Arabic */
+}
+
+.main::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.05) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.header {
+    margin-bottom: 50px;
+    position: relative;
+    z-index: 1;
+}
+
+.welcome h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #fff 0%, #888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome p {
+    color: rgba(255, 255, 255, 0.4);
     font-size: 1.1rem;
-    font-weight: 600;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+/* Action Cards */
+.actionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+    position: relative;
+    z-index: 1;
+}
+
+.actionCard {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 32px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.actionCard:hover {
+    transform: translateY(-8px);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.cardIcon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    transition: all 0.3s;
+}
+
+.actionCard:hover .cardIcon {
+    background: #f59e0b;
+    color: #000;
+    transform: rotate(-5deg) scale(1.1);
+}
+
+.cardTitle {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
 }
 
 .cardDesc {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.4);
     line-height: 1.5;
 }
 
+/* Recent Section */
+.recentSection {
+    position: relative;
+    z-index: 1;
+}
+
 .recentSection h2 {
-    font-size: 1.25rem;
-    margin-bottom: var(--space-md);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: var(--space-sm);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.recentSection h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .recentGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--space-md);
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 16px;
 }
 
 .recentCard {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: var(--space-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    padding: 20px;
     display: flex;
     align-items: center;
-    gap: var(--space-md);
+    gap: 20px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s;
 }
 
 .recentCard:hover {
-    background: var(--bg-hover);
-    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(-5px);
 }
 
 .recentIcon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-sm);
-    background: var(--bg-tertiary);
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .recentInfo {
@@ -202,11 +232,22 @@
 }
 
 .recentName {
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 4px;
 }
 
 .recentDate {
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.recentType {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }

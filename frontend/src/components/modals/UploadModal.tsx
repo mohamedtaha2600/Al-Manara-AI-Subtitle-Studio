@@ -80,7 +80,7 @@ export default function UploadModal() {
             const isVideo = videoExts.includes(ext)
             const localUrl = URL.createObjectURL(file)
 
-            // Step 1: Immediate Preview
+            // Step 1: Immediate Preview & UI Switch
             setVideoFile({
                 id: 'temp-' + Date.now(),
                 name: file.name,
@@ -88,20 +88,21 @@ export default function UploadModal() {
                 duration: 0,
                 type: isVideo ? 'video' : 'audio'
             })
+            
+            // CLOSE MODAL IMMEDIATELY - User can now see the timeline
+            handleClose()
+            addLog('info', '✅ تم تحميل المعاينة المحلية. جاري الرفع والتحليل في الخلفية...')
 
             let uploadFile: File | Blob = file
             let audioFileId = ''
 
             // Step 2: Turbo Extraction (if video)
             if (isVideo) {
-                addLog('info', '🔹 جاري استخراج الصوت محلياً لتسريع العملية...')
                 const audioBlob = await extractAudioFromVideo(file)
                 uploadFile = new File([audioBlob], 'extracted_audio.wav', { type: 'audio/wav' })
-                addLog('success', '✅ تم استخراج الصوت بنجاح!')
             }
 
             // Step 3: Upload Audio/Main File for Transcription
-            addLog('info', '📤 جاري رفع مسار الصوت للمحرك...')
             const formData = new FormData()
             formData.append('file', uploadFile)
 
@@ -114,23 +115,18 @@ export default function UploadModal() {
             const uploadData = await uploadRes.json()
             audioFileId = uploadData.file_id
 
-            // Update store with server ID (important for transcription)
+            // Update store with server ID
             const currentVideo = useProjectStore.getState().videoFile
             if (currentVideo) {
                 setVideoFile({ ...currentVideo, id: audioFileId })
             }
 
-            addLog('success', '✅ مسار الصوت جاهز للترجمة!')
-
             // Step 4: Background Video Upload (if video)
             if (isVideo) {
                 startBackgroundVideoUpload(file)
             }
-
-            handleClose()
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع')
-            addLog('error', `خطأ: ${err instanceof Error ? err.message : 'Unknown error'}`)
+            addLog('error', `خطأ في المعالجة: ${err instanceof Error ? err.message : 'Unknown error'}`)
         } finally {
             setIsUploading(false)
         }

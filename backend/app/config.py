@@ -3,14 +3,16 @@ import sys
 from pathlib import Path
 import shutil
 
-# Determine Base Directory (works for dev and PyInstaller/frozen)
+# Determine Base Directory
 if getattr(sys, 'frozen', False):
-    # Running as compiled exe
     BASE_DIR = Path(sys.executable).parent
 else:
-    # Running as script (backend/app/config.py -> backend/app -> backend -> root)
-    # We want the root of the "Program" essentially
-    BASE_DIR = Path(__file__).resolve().parent.parent.parent
+    # Use environment variable or current working directory as fallback
+    # This is safer for Docker/Hugging Face where file structure might vary
+    BASE_DIR = Path(os.getcwd())
+
+# Ensure we are in the right place (if app folder is sibling, we use CWD)
+# In Docker, we are usually in /app which contains the 'app' folder
 
 # Define Paths
 # Stores uploaded source files

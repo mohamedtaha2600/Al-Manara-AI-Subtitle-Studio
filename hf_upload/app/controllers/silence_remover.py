@@ -14,6 +14,9 @@ except ImportError:
 
 router = APIRouter()
 
+# Global storage for export jobs status
+export_jobs = {}
+
 class SilenceRequest(BaseModel):
     file_path: str # This is actually the file_id from frontend
     threshold: int = -30
@@ -138,8 +141,29 @@ class ExportSilenceRequest(BaseModel):
 async def export_without_silence(request: ExportSilenceRequest, background_tasks: BackgroundTasks):
     """
     Export video/audio with silence segments removed.
-    Uses FFmpeg concat filter to join non-silent parts.
+    Runs in background and returns a job_id.
     """
+    import uuid
+    job_id = str(uuid.uuid4())
+    
+    export_jobs[job_id] = {
+        "status": "processing",
+        "progress": 0,
+        "message": "بدء معالجة الفيديو...",
+        "output_file": None
+    }
+    
+    background_tasks.add_task(run_silence_export_task, job_id, request)
+    
+    return {"job_id": job_id}
+
+@router.get("/silence/export/status/{job_id}")
+async def get_export_status(job_id: str):
+    if job_id not in export_jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return export_jobs[job_id]
+
+async def run_silence_export_task(job_id: str, request: ExportSilenceRequest):
     from config import UPLOAD_DIR, EXPORT_DIR
     import uuid
     
@@ -212,25 +236,30 @@ async def export_without_silence(request: ExportSilenceRequest, background_tasks
             str(output_path)
         ]
         
-        print(f"[EXPORT] Running FFmpeg...")
+        print(f"[EXPORT] Running FFmpeg for job {job_id}...")
+        
+        # We can use subprocess.Popen to track progress later if needed, 
+        # but for now let's just update to 90% when started
+        export_jobs[job_id]["progress"] = 30
+        export_jobs[job_id]["message"] = "جاري تجميع أجزاء الفيديو..."
+        
         process = subprocess.run(cmd, capture_output=True, text=True)
         
         if process.returncode != 0:
             print(f"[EXPORT] FFmpeg error: {process.stderr}")
-            raise Exception(f"FFmpeg failed: {process.stderr[-500:]}")
+            export_jobs[job_id]["status"] = "failed"
+            export_jobs[job_id]["message"] = f"خطأ في FFmpeg: {process.stderr[-200:]}"
+            return
+
+        export_jobs[job_id]["status"] = "completed"
+        export_jobs[job_id]["progress"] = 100
+        export_jobs[job_id]["message"] = "تم تجهيز الفيديو بنجاح!"
+        export_jobs[job_id]["output_file"] = output_filename
+        export_jobs[job_id]["download_url"] = f"/exports/{output_filename}"
         
-        print(f"[EXPORT] Success! Output: {output_path}")
+        print(f"[EXPORT] Success! Job {job_id} completed.")
         
-        return {
-            "success": True,
-            "output_file": output_filename,
-            "output_path": str(output_path),
-            "segments_removed": len(silence_sorted),
-            "segments_kept": len(keep_segments)
-        }
-        
-    except HTTPException:
-        raise
     except Exception as e:
-        print(f"[EXPORT] Error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[EXPORT] Error in job {job_id}: {str(e)}")
+        export_jobs[job_id]["status"] = "failed"
+        export_jobs[job_id]["message"] = str(e)

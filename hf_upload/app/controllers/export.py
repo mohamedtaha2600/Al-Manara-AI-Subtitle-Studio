@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
 import os
@@ -9,6 +9,9 @@ import subprocess
 
 router = APIRouter(prefix="/export", tags=["export"])
 
+# Global storage for burn-in jobs
+burn_in_jobs = {}
+
 class ExportRequest(BaseModel):
     segments: List[dict]
     video_id: str
@@ -16,14 +19,77 @@ class ExportRequest(BaseModel):
     style: Optional[dict] = None
 
 @router.post("/generate")
-async def generate_export(request: ExportRequest):
+async def generate_export(request: ExportRequest, background_tasks: BackgroundTasks):
     if request.format == 'xml':
         return await export_premiere_xml(request)
     elif request.format == 'burn-in':
-        return await export_burn_in(request)
+        import uuid
+        job_id = str(uuid.uuid4())
+        burn_in_jobs[job_id] = {
+            "status": "processing",
+            "progress": 0,
+            "message": "بدء عملية حرق الترجمة...",
+            "download_url": None
+        }
+        background_tasks.add_task(run_burn_in_task, job_id, request)
+        return {"job_id": job_id}
     else:
-        # Placeholder for other formats or return error
         raise HTTPException(status_code=400, detail=f"Format {request.format} not implemented yet")
+
+@router.get("/status/{job_id}")
+async def get_burn_in_status(job_id: str):
+    if job_id not in burn_in_jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return burn_in_jobs[job_id]
+
+async def run_burn_in_task(job_id: str, request: ExportRequest):
+    """
+    Background task for burning subtitles.
+    """
+    try:
+        burn_in_jobs[job_id]["progress"] = 20
+        burn_in_jobs[job_id]["message"] = "جاري تحضير ملف الترجمة..."
+        
+        # 1. Generate temp SRT
+        srt_content = ""
+        for i, seg in enumerate(request.segments):
+            start = format_time_srt(seg['start'])
+            end = format_time_srt(seg['end'])
+            srt_content += f"{i+1}\n{start} --> {end}\n{seg['text']}\n\n"
+            
+        temp_srt = os.path.join(EXPORTS_DIR, f"temp_{request.video_id}_{job_id}.srt")
+        with open(temp_srt, "w", encoding="utf-8") as f:
+            f.write(srt_content)
+            
+        burn_in_jobs[job_id]["progress"] = 40
+        burn_in_jobs[job_id]["message"] = "جاري دمج الترجمة مع الفيديو (قد يستغرق ذلك وقتاً)..."
+        
+        # 2. FFmpeg run
+        input_video = os.path.join(UPLOADS_DIR, request.video_id)
+        output_video_name = f"burnin_{request.video_id}_{job_id}.mp4"
+        output_video = os.path.join(EXPORTS_DIR, output_video_name)
+        
+        # Windows-specific path escaping for FFmpeg subtitles filter
+        srt_path_esc = temp_srt.replace(":", "\\:").replace("\\", "/")
+        cmd = [
+            "ffmpeg", "-y", "-i", input_video,
+            "-vf", f"subtitles='{srt_path_esc}'",
+            "-c:v", "libx264", "-preset", "fast",
+            "-c:a", "copy",
+            output_video
+        ]
+        
+        subprocess.run(cmd, check=True)
+        
+        burn_in_jobs[job_id]["status"] = "completed"
+        burn_in_jobs[job_id]["progress"] = 100
+        burn_in_jobs[job_id]["message"] = "تم دمج الترجمة بنجاح!"
+        burn_in_jobs[job_id]["download_url"] = f"/exports/{output_video_name}"
+        
+    except Exception as e:
+        print(f"[BURN-IN] Error: {str(e)}")
+        burn_in_jobs[job_id]["status"] = "failed"
+        burn_in_jobs[job_id]["message"] = f"فشل الحرق: {str(e)}"
 
 async def export_premiere_xml(request: ExportRequest):
     """
@@ -49,54 +115,12 @@ async def export_premiere_xml(request: ExportRequest):
     ET.SubElement(clipitem, 'start').text = "0"
     ET.SubElement(clipitem, 'end').text = "3600"
     
-    # Add Subtitles as Titles/Text items if possible, or just markers
-    # For now, we'll create a simple XML and improve it.
-    
     tree = ET.ElementTree(xmeml)
     tree.write(file_path, encoding='UTF-8', xml_declaration=True)
     
     return {"status": "success", "downloadUrl": f"/exports/{filename}", "filename": filename}
 
-async def export_burn_in(request: ExportRequest):
-    """
-    Burn subtitles into video using FFmpeg.
-    """
-    # 1. Generate temp SRT
-    srt_content = ""
-    for i, seg in enumerate(request.segments):
-        start = format_time_srt(seg['start'])
-        end = format_time_srt(seg['end'])
-        srt_content += f"{i+1}\n{start} --> {end}\n{seg['text']}\n\n"
-        
-    temp_srt = os.path.join(EXPORTS_DIR, f"temp_{request.video_id}.srt")
-    with open(temp_srt, "w", encoding="utf-8") as f:
-        f.write(srt_content)
-        
-    # 2. FFmpeg run
-    input_video = os.path.join(UPLOADS_DIR, request.video_id)
-    output_video_name = f"burnin_{request.video_id}"
-    output_video = os.path.join(EXPORTS_DIR, output_video_name)
-    
-    # Command: ffmpeg -i input.mp4 -vf "subtitles=temp.srt" output.mp4
-    # We use escaped path for Windows subtitles filter
-    srt_path_esc = temp_srt.replace(":", "\\:").replace("\\", "/")
-    cmd = [
-        "ffmpeg", "-y", "-i", input_video,
-        "-vf", f"subtitles='{srt_path_esc}'",
-        "-c:a", "copy",
-        output_video
-    ]
-    
-    try:
-        subprocess.run(cmd, check=True)
-        return {"status": "success", "downloadUrl": f"/exports/{output_video_name}", "filename": output_video_name}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 def format_time_srt(seconds: float) -> str:
-    td = datetime.fromtimestamp(seconds)
-    # This is a bit hacky for srt format (00:00:00,000)
-    # Better to use math
     hours = int(seconds // 3600)
     minutes = int((seconds % 3600) // 60)
     secs = int(seconds % 60)

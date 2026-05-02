@@ -125,6 +125,8 @@ const TimelineWaveform = ({
         }
     }, [pixelsPerSecond, isReady])
 
+    const { uploadProgress, isVideoUploading } = useProjectStore()
+
     return (
         <div
             className={styles.waveformContainer}
@@ -135,6 +137,20 @@ const TimelineWaveform = ({
                 overflow: 'hidden'
             }}
         >
+            {/* Upload Progress "Water Fill" Layer */}
+            {isVideoUploading && (
+                <div 
+                    className={styles.uploadWaterFill}
+                    style={{
+                        height: `${uploadProgress}%`,
+                    }}
+                >
+                    <div className={styles.uploadText}>
+                        جاري الرفع... {Math.round(uploadProgress)}%
+                    </div>
+                </div>
+            )}
+
             {/* WaveSurfer Container (Base layer - red waveform) */}
             <div
                 ref={containerRef}

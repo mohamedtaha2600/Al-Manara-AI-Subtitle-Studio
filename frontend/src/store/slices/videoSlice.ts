@@ -41,6 +41,7 @@ export const createVideoSlice: StateCreator<VideoSlice> = (set) => ({
 
     setVideoUploadProgress: (progress) => set({ videoUploadProgress: progress }),
     setIsVideoUploading: (uploading) => set({ isVideoUploading: uploading }),
+    setUploadProgress: (progress) => set({ uploadProgress: progress }),
 
     resetVideo: () => set({
         videoFile: null,
@@ -48,6 +49,7 @@ export const createVideoSlice: StateCreator<VideoSlice> = (set) => ({
         currentTime: 0,
         isPlaying: false,
         isVideoUploading: false,
-        videoUploadProgress: 0
+        videoUploadProgress: 0,
+        uploadProgress: 0
     }),
 })
