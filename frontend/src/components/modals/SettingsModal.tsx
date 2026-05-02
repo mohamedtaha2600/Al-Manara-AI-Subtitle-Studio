@@ -228,8 +228,9 @@ pause`
                                             { id: 'medium', name: 'Medium (احترافي)', desc: 'الخيار الأفضل للغة العربية' },
                                             { id: 'large-v3', name: 'Large V3 (أقصى دقة)', desc: 'الأكثر دقة، يتطلب كارت شاشة قوي' }
                                         ]).map(model => {
-                                            const isInstalled = isOnline || installedModels.includes(model.id)
+                                            const isInstalled = installedModels.includes(model.id)
                                             const isSelected = preferredModel === model.id
+                                            const canUse = engineSource === 'cloud' || isInstalled
 
                                             return (
                                                 <div
@@ -242,7 +243,7 @@ pause`
                                                         <span className={styles.modelDesc}>{model.desc}</span>
                                                     </div>
                                                     <div className={styles.modelStatus}>
-                                                        {isSelected ? 'فعال ✓' : (isInstalled ? 'مثبت' : 'غير موجود')}
+                                                        {isSelected ? 'فعال ✓' : (isInstalled ? 'مثبت' : (engineSource === 'cloud' ? 'متاح سحابياً' : 'غير موجود'))}
                                                     </div>
                                                 </div>
                                             )
@@ -370,6 +371,18 @@ pause`
                                             type="text"
                                             value={localModelPath}
                                             onChange={(e) => setSystemSetting('localModelPath', e.target.value)}
+                                            onBlur={async () => {
+                                                if (engineSource === 'local') {
+                                                    try {
+                                                        await fetch(getApiUrl('settings/models_path', 'local'), {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ path: localModelPath })
+                                                        });
+                                                        fetchModels();
+                                                    } catch (e) {}
+                                                }
+                                            }}
                                             placeholder="./models"
                                         />
                                         <p className={styles.fieldHint}>المجلد الذي سيتم تحميل وحفظ نماذج الذكاء الاصطناعي فيه</p>

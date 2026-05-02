@@ -63,6 +63,11 @@ class TranscriptionRequest(BaseModel):
     initial_prompt: Optional[str] = None
 
 
+class ModelsPathRequest(BaseModel):
+    """Request model for updating models path."""
+    path: str
+
+
 class TranscriptionJob(BaseModel):
     """Model for transcription job status."""
     job_id: str
@@ -511,6 +516,16 @@ async def list_jobs():
         })
     
     return {"jobs": jobs, "count": len(jobs)}
+
+
+@router.post("/settings/models_path")
+async def update_models_path(request: ModelsPathRequest):
+    """Update the directory where Whisper models are loaded from."""
+    try:
+        whisper_service.update_models_dir(request.path)
+        return {"success": True, "path": whisper_service.models_dir}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/models")

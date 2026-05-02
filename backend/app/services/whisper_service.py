@@ -41,9 +41,21 @@ class WhisperService:
         
         # Create models directory if not exists
         os.makedirs(MODELS_DIR, exist_ok=True)
+        self.models_dir = MODELS_DIR
         
         # Set environment variables to use local cache
-        os.environ['HF_HOME'] = MODELS_DIR
+        os.environ['HF_HOME'] = self.models_dir
+
+    def update_models_dir(self, new_path: str):
+        """Update the directory where models are stored/loaded from."""
+        if not new_path:
+            return
+            
+        abs_path = os.path.abspath(new_path)
+        os.makedirs(abs_path, exist_ok=True)
+        self.models_dir = abs_path
+        os.environ['HF_HOME'] = abs_path
+        print(f"[WHISPER] Models directory updated to: {abs_path}")
 
     def load_model(self, model_size: str = None, use_gpu: bool = True):
         """
@@ -75,12 +87,12 @@ class WhisperService:
             print(f"[WHISPER] Models directory: {MODELS_DIR}")
             logger.info(f"Loading Whisper model: {size}")
             
-            model_path = os.path.join(MODELS_DIR, size)
+            model_path = os.path.join(self.models_dir, size)
             if os.path.exists(model_path):
                 print(f"[WHISPER] Loading local model from: {model_path}")
                 model_arg = model_path
             else:
-                print(f"[WHISPER] Model not found locally, downloading: {size}")
+                print(f"[WHISPER] Model not found locally in {self.models_dir}, downloading: {size}")
                 model_arg = size
 
             # 1. Attempt to add NVIDIA libraries to DLL path (Windows Fix)
@@ -139,7 +151,7 @@ class WhisperService:
                     device=device,
                     compute_type=compute_type,
                     cpu_threads=8, # Optimized for speed
-                    download_root=MODELS_DIR if model_arg == size else None
+                    download_root=self.models_dir if model_arg == size else None
                 )
             except Exception as e:
                 if device == "cuda":
@@ -754,16 +766,21 @@ class WhisperService:
         Returns:
             list: List of installed model names (e.g. ['base', 'medium'])
         """
-        if not os.path.exists(MODELS_DIR):
+        if not os.path.exists(self.models_dir):
             return []
             
         installed = []
-        valid_models = ["tiny", "base", "small", "medium", "large-v3"]
+        valid_models = ["tiny", "base", "small", "medium", "large-v3", "large-v2", "large"]
         
         for name in valid_models:
-            model_path = os.path.join(MODELS_DIR, name)
-            if os.path.isdir(model_path) and any(f.endswith('.bin') for f in os.listdir(model_path)):
-                installed.append(name)
+            # Check for direct directory match
+            model_path = os.path.join(self.models_dir, name)
+            
+            # Check if it exists as a directory with .bin or .onnx or .json (config)
+            if os.path.isdir(model_path):
+                files = os.listdir(model_path)
+                if any(f.endswith(('.bin', '.onnx', '.json', '.txt')) for f in files):
+                    installed.append(name)
                 
         return installed
 
