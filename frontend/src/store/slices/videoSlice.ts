@@ -10,6 +10,7 @@ export interface VideoSlice {
     // Background Upload Tracking
     isVideoUploading: boolean
     videoUploadProgress: number
+    uploadProgress: number
 
     setVideoFile: (file: VideoFile | null) => void
     setProjectName: (name: string) => void
@@ -19,6 +20,7 @@ export interface VideoSlice {
     // Background Upload Actions
     setVideoUploadProgress: (progress: number) => void
     setIsVideoUploading: (uploading: boolean) => void
+    setUploadProgress: (progress: number) => void
 
     // Derived/Complex Actions if needed
     resetVideo: () => void
@@ -33,15 +35,16 @@ export const createVideoSlice: StateCreator<VideoSlice> = (set) => ({
     // Background Upload
     isVideoUploading: false,
     videoUploadProgress: 0,
+    uploadProgress: 0,
 
     setVideoFile: (file) => set({ videoFile: file }),
     setProjectName: (name) => set({ projectName: name }),
     setCurrentTime: (time) => set({ currentTime: time }),
     setIsPlaying: (playing) => set({ isPlaying: playing }),
 
-    setVideoUploadProgress: (progress) => set({ videoUploadProgress: progress }),
-    setIsVideoUploading: (uploading) => set({ isVideoUploading: uploading }),
-    setUploadProgress: (progress) => set({ uploadProgress: progress }),
+    setVideoUploadProgress: (progress: number) => set({ videoUploadProgress: progress }),
+    setIsVideoUploading: (uploading: boolean) => set({ isVideoUploading: uploading }),
+    setUploadProgress: (progress: number) => set({ uploadProgress: progress }),
 
     resetVideo: () => set({
         videoFile: null,
