@@ -113,21 +113,24 @@ export default function ProgressLog({ filterSilence = false }: ProgressLogProps)
             {/* Toolbar */}
             <div className={styles.toolbar}>
                 <div className={styles.titleRow}>
-                    <h4><Terminal size={14} /> سجل النظام</h4>
+                    <div className={styles.titleGroup}>
+                        <h4><Terminal size={14} /> سجل النظام</h4>
+                        <div className={`${styles.serverStatus} ${isTranscribing ? styles.busy : styles.online}`}>
+                            <div className={styles.statusDot} />
+                            <span>{isTranscribing ? 'متصل - معالجة' : 'خادم متصل'}</span>
+                        </div>
+                    </div>
                     <div className={styles.actions}>
+                        <div className={styles.toolBadge}>
+                            <Activity size={12} />
+                            <span>{filterSilence ? 'حذف الصمت' : 'محرك الترجمة'}</span>
+                        </div>
                         <button
                             className={styles.actionBtn}
                             onClick={handleCopy}
                             title="نسخ السجل"
                         >
                             <Copy size={14} />
-                        </button>
-                        <button
-                            className={styles.actionBtn}
-                            onClick={handleExport}
-                            title="تصدير (TXT)"
-                        >
-                            <Download size={14} />
                         </button>
                         <button
                             className={`${styles.actionBtn} ${styles.danger}`}
@@ -188,8 +191,14 @@ export default function ProgressLog({ filterSilence = false }: ProgressLogProps)
             {isTranscribing && (
                 <div className={styles.currentStatus}>
                     <div className={styles.statusHeader}>
-                        <Activity className="spin" size={14} />
-                        <span>جاري المعالجة... {Math.round(progress)}%</span>
+                        <div className={styles.statusMain}>
+                            <Activity className="spin" size={14} />
+                            <span>جاري المعالجة... {Math.round(progress)}%</span>
+                        </div>
+                        <div className={styles.etaBadge}>
+                            <Info size={12} />
+                            <span>متبقي حوالي {Math.max(1, Math.round((100 - progress) * 0.8))} ثانية</span>
+                        </div>
                     </div>
                     <div className={styles.progressBar}>
                         <div

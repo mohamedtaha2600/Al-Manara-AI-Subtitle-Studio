@@ -22,6 +22,64 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: var(--space-sm);
+    gap: var(--space-md);
+}
+
+.titleGroup {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.serverStatus {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.statusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #666;
+}
+
+.online .statusDot {
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s infinite;
+}
+
+.busy .statusDot {
+    background: var(--accent-secondary);
+    box-shadow: 0 0 8px var(--accent-secondary);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+.toolBadge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 4px;
+    font-size: 0.65rem;
+    color: var(--accent-primary);
+    font-weight: 600;
 }
 
 .titleRow h4 {

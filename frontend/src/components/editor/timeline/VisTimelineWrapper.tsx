@@ -88,7 +88,7 @@ export default function VisTimelineWrapper() {
 
             const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
             const speed = 1.5;
-            const newLeft = scrollLeftRef.current + delta * speed;
+            const newLeft = scrollLeftRef.current - delta * speed; // Reversed: Scroll forward goes forward
 
             timelineRef.current.setScrollLeft(newLeft);
         };
