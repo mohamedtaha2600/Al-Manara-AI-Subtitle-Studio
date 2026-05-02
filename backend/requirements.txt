@@ -12,3 +12,6 @@ onnxruntime>=1.16.0
 nltk==3.8.1
 torch>=2.0.0
 huggingface_hub
+# Speaker Diarization (optional - requires HF_TOKEN env var)
+pyannote.audio>=3.1.0
+speechbrain>=0.5.16

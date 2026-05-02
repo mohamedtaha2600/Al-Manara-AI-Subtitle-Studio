@@ -8,6 +8,7 @@ from datetime import datetime
 
 from services.whisper_service import WhisperService
 from services.websocket_manager import ConnectionManager
+from services.diarization_service import diarize, assign_speakers_to_segments, is_available as diarization_available
 from deep_translator import GoogleTranslator, MyMemoryTranslator
 from app.config import UPLOAD_DIR
 
@@ -237,6 +238,24 @@ async def process_transcription(
             # If punctuation is requested but Whisper output is "naked" (no dots/commas), try local restoration
             if include_punctuation and not any(p in seg["text"] for p in PUNCTUATION):
                 seg["text"] = whisper_service.restore_punctuation(seg["text"])
+
+        # 1b. Speaker Diarization (if enabled)
+        # ----------------------------------------
+        if enable_diarization:
+            if diarization_available():
+                job["message"] = "جاري تحديد المتكلمين... (Speaker Diarization)"
+                job["progress"] = 75.0
+                print("[DIARIZATION] Running speaker diarization...")
+                diarization_segments = diarize(file_path)
+                if diarization_segments:
+                    source_segments = assign_speakers_to_segments(source_segments, diarization_segments)
+                    speakers = set(s.get("speaker") for s in source_segments if s.get("speaker"))
+                    print(f"[DIARIZATION] Assigned {len(speakers)} speaker(s): {speakers}")
+                    job["message"] = f"تم تحديد {len(speakers)} متحدث"
+                else:
+                    print("[DIARIZATION] No diarization segments returned — skipping")
+            else:
+                print("[DIARIZATION] Not available — skipping (install pyannote or set HF_TOKEN)")
         
         # Add Source Track
         if include_source or not target_languages:

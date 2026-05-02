@@ -25,6 +25,12 @@ shared/exports/*
 .env
 .env.local
 
+# Local setup scripts (contain HF tokens - NEVER commit these)
+setup_diarization.bat
+setup_diarization_local.py
+*_local.bat
+*_local.py
+
 # OS
 .DS_Store
 Thumbs.db
