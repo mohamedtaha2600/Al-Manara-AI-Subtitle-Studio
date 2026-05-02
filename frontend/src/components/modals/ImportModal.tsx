@@ -124,7 +124,8 @@ export default function ImportModal() {
         const formData = new FormData()
         formData.append('file', file)
 
-        const response = await fetch('http://localhost:8000/api/upload', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://mohamedtaha2600-almanara-ai-engine.hf.space/api'
+        const response = await fetch(`${apiUrl}/upload`, {
             method: 'POST',
             body: formData,
         })
@@ -175,6 +176,7 @@ export default function ImportModal() {
                     name: mediaFile.name,
                     url: localUrl,
                     duration: 0,
+                    type: 'video'
                 })
             }
 
