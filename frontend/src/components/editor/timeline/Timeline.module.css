@@ -15,19 +15,27 @@
     padding: 4px 8px;
     background: linear-gradient(180deg, var(--bg-tertiary), var(--bg-secondary));
     border-bottom: 1px solid var(--border-color);
+    min-width: 0;
+    overflow: hidden;
+    gap: 8px;
 }
 
 .toolbarLeft,
 .toolbarRight {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .toolbarCenter {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .shortcutHint {
@@ -38,17 +46,18 @@
 }
 
 .toolBtn {
-    padding: 4px 10px;
+    padding: 4px 8px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     color: var(--text-secondary);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     cursor: pointer;
     transition: all var(--transition-fast);
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
 }
 
 .toolBtn:hover {
@@ -58,44 +67,46 @@
 }
 
 .currentTimeDisplay {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--accent-primary);
     font-variant-numeric: tabular-nums;
     background: rgba(212, 160, 18, 0.15);
-    padding: 4px 10px;
+    padding: 2px 8px;
     border-radius: 4px;
+    white-space: nowrap;
 }
 
 /* Time Display Section */
 .timeDisplay {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     font-family: 'Consolas', 'Monaco', monospace;
     font-variant-numeric: tabular-nums;
     background: var(--bg-primary);
-    padding: 6px 12px;
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .currentTimeValue {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--accent-primary);
     text-shadow: 0 0 10px rgba(212, 160, 18, 0.4);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
 }
 
 .timeSeparator {
     color: var(--text-muted);
     opacity: 0.5;
-    margin: 0 4px;
+    margin: 0 2px;
 }
 
 .totalDuration {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     font-weight: 500;
 }
@@ -103,18 +114,20 @@
 /* Tool Groups */
 .toolGroup {
     display: flex;
-    gap: 2px;
+    gap: 1px;
     background: var(--bg-primary);
     border-radius: var(--radius-sm);
-    padding: 2px;
+    padding: 1px;
     border: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .toolSeparator {
     width: 1px;
-    height: 24px;
+    height: 18px;
     background: var(--border-color);
-    margin: 0 8px;
+    margin: 0 4px;
+    flex-shrink: 0;
 }
 
 /* Tool button active state */
@@ -144,9 +157,10 @@
 
 .segmentCount,
 .duration {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     font-family: var(--font-arabic);
+    white-space: nowrap;
 }
 
 .zoomBtn {
@@ -311,21 +325,39 @@
 
 @media (max-width: 768px) {
     .toolbar {
-        flex-wrap: wrap;
-        padding: 8px;
-        gap: 8px;
-        height: auto;
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        justify-content: flex-start;
+        gap: 6px;
+        padding: 6px 8px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Hide scrollbar for cleaner look */
     }
+    .toolbar::-webkit-scrollbar { display: none; }
+
     .toolBtn, .zoomBtn {
-        padding: 10px 14px;
-        font-size: 0.9rem;
-        flex: 1;
-        justify-content: center;
+        padding: 10px 12px;
+        font-size: 1rem;
+        flex: 0 0 auto;
     }
+
+    /* Hide button text and secondary info on mobile to save space */
+    .toolBtn span, .shortcutHint, .segmentCount, .totalDuration, .timeSeparator {
+        display: none !important;
+    }
+
+    .timeDisplay {
+        padding: 4px 8px;
+        background: var(--bg-tertiary);
+        min-width: 0;
+        flex-shrink: 1;
+    }
+
     .currentTimeValue {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
-    .timelineWrapper::-webkit-scrollbar {
-        height: 14px;
+
+    .toolbar {
+        gap: 4px !important;
     }
 }

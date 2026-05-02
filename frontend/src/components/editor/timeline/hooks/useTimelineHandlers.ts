@@ -311,6 +311,7 @@ export function useTimelineHandlers(
         if (!session.isDragging) return true;
 
         const state = useProjectStore.getState();
+        const { snapEnabled, timelineZoom, currentTime } = state;
 
         let originalMasterStart = 0;
         const masterIdRaw = parseInt(session.masterId?.match(/(\d+)$/)?.[1] || "-1");
@@ -320,6 +321,35 @@ export function useTimelineHandlers(
             originalMasterStart = session.originalVideoPositions.get(masterIdRaw)?.start || 0;
         } else {
             originalMasterStart = session.originalSubPositions.get(masterIdRaw)?.start || 0;
+        }
+
+        let finalStart = param.start;
+        let finalEnd = param.end;
+
+        if (snapEnabled) {
+            const SNAP_THRESHOLD = calcSnapThreshold(timelineZoom, 10);
+            const selectionIds = new Set(state.multiSelectActionIds);
+            if (session.masterId) selectionIds.add(session.masterId);
+
+            const snapTargets: { start: number, end: number }[] = [];
+            state.segments.forEach(s => {
+                if (!selectionIds.has(`sub-${s.id}`)) snapTargets.push({ start: s.start, end: s.end });
+            });
+            state.videoSegments.forEach(v => {
+                if (!selectionIds.has(`video-${v.id}`)) snapTargets.push({ start: v.timelineStart, end: v.timelineEnd });
+            });
+
+            const { snappedStart, snappedEnd, snappedTime } = calculateSnappedPosition(
+                param.start, param.end, snapTargets, SNAP_THRESHOLD, currentTime
+            );
+
+            if (snappedTime !== null) {
+                finalStart = snappedStart;
+                finalEnd = snappedEnd;
+                setSnapLineTime(snappedTime);
+            } else {
+                setSnapLineTime(null);
+            }
         }
 
         // SLIP TOOL LOGIC
@@ -362,14 +392,13 @@ export function useTimelineHandlers(
             }
         }
 
-        session.lastDelta = param.start - originalMasterStart;
+        session.lastDelta = finalStart - originalMasterStart;
 
         if (!session.rafId) {
             session.rafId = requestAnimationFrame(() => {
                 const delta = session.lastDelta;
                 const state = useProjectStore.getState();
 
-                // REAL-TIME SYNC: Update both Master and Slaves in the store
                 let newVideoSegments = undefined;
                 let subUpdates = undefined;
 
@@ -389,14 +418,13 @@ export function useTimelineHandlers(
                     if (updates.length > 0) subUpdates = updates;
                 }
 
-                // Batch update ensures they all move in the SAME React render cycle
                 state.batchMoveItems(newVideoSegments, subUpdates, null);
                 session.rafId = null;
             });
         }
 
         return true;
-    }, []);
+    }, [setSnapLineTime]);
 
     const onActionResizing = useCallback((param: { action: TimelineAction, row: TimelineRow, start: number, end: number, dir: 'left' | 'right' }) => {
         const isVideoTrack = param.row.id === 'video-track';

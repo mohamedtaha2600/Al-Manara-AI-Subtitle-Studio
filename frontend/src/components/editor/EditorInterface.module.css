@@ -1,10 +1,11 @@
+/* EditorInterface.module.css - Optimized Layout Engine */
+
 .container {
     display: flex;
     height: 111.11vh;
-    /* Fills screen at 0.9 zoom (100 / 0.9) */
     background: var(--bg-primary);
     overflow: hidden;
-    direction: ltr; /* Sidebar stays on left */
+    direction: ltr;
 }
 
 .mainContent {
@@ -15,23 +16,22 @@
     overflow: hidden;
     position: relative;
     min-width: 0;
-    /* Prevents flex overflow */
-    direction: rtl; /* Editor content is Arabic-friendly */
+    direction: rtl;
 }
 
-/* Header */
+/* Header Section */
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-xs) var(--space-md);
+    padding: 0 var(--space-md);
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    height: 40px;
+    height: 44px;
     flex-shrink: 0;
 }
 
-.headerLeft {
+.headerLeft, .headerRight {
     display: flex;
     align-items: center;
     gap: var(--space-md);
@@ -41,529 +41,47 @@
     display: flex;
     align-items: baseline;
     gap: var(--space-sm);
-    padding: 2px 8px;
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.2s;
-    user-select: none;
-    position: relative;
-}
-
-.projectNameContainer:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.projectNameText {
-    font-size: 1.15rem;
-    font-weight: 700;
-    font-family: var(--font-arabic);
-    color: var(--text-primary);
-    white-space: nowrap;
-}
-
-.projectNameInput {
-    background: rgba(40, 40, 40, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--accent-primary);
-    border-radius: var(--radius-sm);
-    color: white;
-    font-size: 1.15rem;
-    font-weight: 700;
-    font-family: var(--font-arabic);
-    padding: 0 4px;
-    width: 200px;
-    outline: none;
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-}
-
-.fileNameBadge {
-    padding: 2px 6px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    color: var(--text-muted);
-    font-size: 0.65rem;
-    font-family: var(--font-primary);
-    white-space: nowrap;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.logo {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-sm);
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #f59e0b;
-    font-family: var(--font-arabic);
-}
-
-.logoSub {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    font-family: var(--font-primary);
-}
-
-.headerCenter {
-    display: flex;
-    align-items: center;
-}
-
-.statusPill {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-xs) var(--space-md);
-    background: rgba(99, 102, 241, 0.15);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    color: var(--accent-primary);
-    font-family: var(--font-arabic);
-}
-
-.progressPercent {
-    font-weight: 600;
-    color: var(--accent-secondary);
-}
-
-.headerRight {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-}
-
-.exportBtn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-xs) var(--space-md);
-    background: var(--accent-gradient);
-    color: white;
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: all var(--transition-fast);
-    font-family: var(--font-arabic);
-}
-
-.exportBtn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-glow);
-}
-
-.exportBtn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.badge {
-    padding: 2px 6px;
-    background: rgba(34, 197, 94, 0.1);
-    color: var(--success);
-    border-radius: 4px;
-    font-size: 0.65rem;
-    border: 1px solid rgba(34, 197, 94, 0.2);
-}
-
-/* Editor Area - Fixed Height */
-.editorArea {
-    display: flex;
-    gap: var(--space-xs);
-    padding: var(--space-xs);
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-}
-
-/* Video Player Section - Fixed proportions */
-.playerSection {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #0a0a0a;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    min-width: 0;
-    min-height: 0;
-}
-
-.emptyPlayer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-sm);
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    color: var(--text-muted);
-    background: var(--bg-secondary);
-}
-
-.emptyPlayer:hover {
-    color: var(--text-secondary);
-    background: var(--bg-hover);
-}
-
-.emptyPlayer h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    font-family: var(--font-arabic);
-}
-
-.emptyPlayer p {
-    font-size: 0.8125rem;
-}
-
-.formats {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    background: var(--bg-tertiary);
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-sm);
-}
-
-/* Right Panel - Fixed Width */
-.rightPanel {
-    width: 320px;
-    min-width: 320px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
-    overflow: visible; /* To allow toggle button to overflow if needed */
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.rightPanel.collapsed {
-    width: 40px;
-    min-width: 40px;
-}
-
-.collapseToggle {
-    position: absolute;
-    top: 50%;
-    left: -12px;
-    transform: translateY(-50%);
-    width: 24px;
-    height: 24px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
-.collapseToggle:hover {
-    color: var(--accent-primary);
-    background: var(--bg-tertiary);
-    border-color: var(--accent-primary);
-}
-
-.panelTabs {
-    display: flex;
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
-    overflow: hidden;
-    transition: all 0.3s;
-}
-
-.collapsed .panelTabs {
-    flex-direction: column;
-    border-bottom: none;
-    border-left: 1px solid var(--border-color);
-    height: 100%;
-}
-
-.panelTab {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: var(--space-sm);
-    color: var(--text-muted);
-    transition: all var(--transition-fast);
-    font-family: var(--font-arabic);
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-.collapsed .panelTab {
-    padding: 12px 0;
-    flex: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-.collapsed .panelTab span {
-    display: none;
-}
-
-.collapsed .panelTab {
-    padding: var(--space-sm) 0;
-}
-
-.panelTab:hover {
-    color: var(--text-secondary);
-    background: var(--bg-hover);
-}
-
-.panelTab.active {
-    color: var(--text-primary);
-    background: var(--bg-tertiary);
-    border-bottom: 2px solid var(--accent-primary);
-}
-
-.collapsed .panelTab.active {
-    border-bottom: none;
-    border-left: 2px solid var(--accent-primary);
-}
-
-.panelContent {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--space-xs);
-    min-height: 0;
-    transition: opacity 0.2s;
-}
-
-.collapsed .panelContent {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Timeline Section - Resizable */
-.timelineSection {
-    min-height: 150px;
-    max-height: 60vh;
-    flex-shrink: 0;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    position: relative;
-}
-
-.resizeDivider {
-    position: absolute;
-    top: -5px;
-    left: 0;
-    right: 0;
-    height: 10px;
-    cursor: ns-resize;
-    background: transparent;
-    z-index: 100;
     transition: background 0.2s;
 }
 
-.resizeDivider:hover,
-.resizeDivider.dragging {
-    background: var(--accent-primary);
-}
+.projectNameContainer:hover { background: rgba(255, 255, 255, 0.05); }
 
-.resizeDivider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 4px;
-    background: var(--accent-primary);
-    border-radius: 2px;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.resizeDivider:hover::before {
-    opacity: 1;
-}
-
-/* Export Modal */
-.modalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-}
-
-.exportModal {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    min-width: 360px;
-    max-width: 90vw;
-}
-
-.exportModal h3 {
-    font-size: 1.125rem;
+.projectNameText {
+    font-size: 1.1rem;
+    font-weight: 700;
     font-family: var(--font-arabic);
-    margin-bottom: var(--space-xs);
-}
-
-.exportModal p {
-    color: var(--text-muted);
-    font-size: 0.8125rem;
-    margin-bottom: var(--space-md);
-}
-
-.exportOptions {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-md);
-}
-
-.exportOption {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-sm) var(--space-md);
-    background: var(--bg-tertiary);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.exportOption:hover {
-    border-color: var(--border-hover);
-}
-
-.exportOption.selected {
-    border-color: var(--accent-primary);
-    background: rgba(99, 102, 241, 0.1);
-}
-
-.exportOption input {
-    display: none;
-}
-
-.optionContent {
-    display: flex;
-    flex-direction: column;
-}
-
-.optionTitle {
-    font-weight: 600;
     color: var(--text-primary);
-    font-size: 0.875rem;
 }
 
-.optionDesc {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-}
-
-.exportActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--space-md);
-}
-
-.cancelBtn {
-    padding: var(--space-sm) var(--space-md);
+.projectNameInput {
     background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    font-family: var(--font-arabic);
-    font-size: 0.8125rem;
-    transition: all var(--transition-fast);
-}
-
-.cancelBtn:hover {
-    background: var(--bg-hover);
-}
-
-.exportConfirmBtn {
-    padding: var(--space-sm) var(--space-lg);
-    background: var(--accent-gradient);
-    border-radius: var(--radius-md);
+    border: 1px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
     color: white;
-    font-weight: 500;
-    font-family: var(--font-arabic);
-    font-size: 0.8125rem;
-    transition: all var(--transition-fast);
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 0 4px;
+    width: 200px;
 }
 
-.exportConfirmBtn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-glow);
-}
-
-.exportConfirmBtn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* Vertical Layout Styles */
-.verticalSplitWrapper {
-    display: flex;
-    flex: 1;
-    min-height: 0;
+.fileNameBadge {
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    max-width: 180px;
     overflow: hidden;
-    background: var(--bg-primary);
-}
-
-.verticalLeftStack {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    border-left: 1px solid var(--border-color);
-}
-
-.verticalPlayerSection {
-    width: 360px;
-    min-width: 360px;
-    display: flex;
-    flex-direction: column;
-    background: #000;
-    position: relative;
-    border-right: 1px solid var(--border-color);
-}
-
-.verticalEditorArea {
-    flex: 1;
-    display: flex;
-    padding: var(--space-xs);
-    min-height: 0;
-    overflow: hidden;
-}
-
-.verticalTimelineSection {
-    flex-shrink: 0;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    position: relative;
-    min-height: 120px;
-}
-
-.verticalPanel {
-    width: 100% !important;
-    max-width: none !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .layoutToggleBtn {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
     padding: 4px 12px;
@@ -577,114 +95,303 @@
 .layoutToggleBtn:hover {
     background: var(--accent-primary);
     color: white;
+}
+
+/* Main Workspace Area */
+.editorArea, .verticalSplitWrapper {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Sidebar Panels (Style / Subtitle) */
+.rightPanel {
+    width: 30%; /* Default to 30% */
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    position: relative;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1; /* Still allow it to grow if both are visible */
+}
+
+/* Specific fix for user request: Don't let it grow to 100% when player is hidden */
+.rightPanel.playerHiddenMode {
+    flex: 0 0 450px !important; /* Keep it at a fixed professional width */
+    max-width: 500px;
+}
+
+.rightPanel.collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    border: none !important;
+    overflow: visible;
+}
+
+.rightPanel.collapsed * { display: none !important; }
+.rightPanel.collapsed .collapseToggle { display: flex !important; }
+
+.collapseToggle, .playerCollapseToggle {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 60;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapseToggle { 
+    right: -13px; /* Stick to the opening edge in RTL (since panel is on right) */
+}
+.playerCollapseToggle { 
+    left: -13px; /* Stick to the opening edge for player (since player is on left) */
+}
+
+.collapseToggle:hover, .playerCollapseToggle:hover {
+    color: var(--accent-primary);
+    background: var(--bg-tertiary);
     border-color: var(--accent-primary);
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+}
+
+/* Tab System */
+.panelTabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.panelTab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.panelTab.active {
+    color: var(--accent-primary);
+    background: rgba(99, 102, 241, 0.05);
+    border-bottom-color: var(--accent-primary);
+}
+
+.panelContent {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-xs);
+}
+
+/* Player Monitor Section */
+.playerSection, .verticalPlayerSection {
+    position: relative;
+    background: #000;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.playerCollapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    border: none !important;
+    overflow: visible;
+}
+
+.playerCollapsed * { display: none !important; }
+.playerCollapsed .playerCollapseToggle { display: flex !important; }
+
+.playerResizeHandle {
+    position: absolute;
+    top: 0; bottom: 0; right: -3px;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 50;
+}
+
+.playerResizeHandle:hover, .dragging { background: var(--accent-primary); }
+
+/* Timeline Section */
+.timelineSection, .verticalTimelineSection {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    position: relative;
+    min-height: 120px;
+}
+
+.resizeDivider {
+    position: absolute;
+    top: -4px; left: 0; right: 0; height: 8px;
+    cursor: ns-resize;
+    z-index: 100;
+}
+
+.resizeDivider:hover { background: var(--accent-primary); }
+
+/* Layout Mode Specifics */
+.verticalLeftStack {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .verticalControlsOverlay {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 12px; left: 12px;
     z-index: 100;
 }
 
 .layoutToggleBtnSmall {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
-    padding: 2px 8px;
+    padding: 4px 10px;
     border-radius: 4px;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     cursor: pointer;
-    font-family: var(--font-arabic);
 }
 
-.layoutToggleBtnSmall:hover {
-    background: var(--accent-primary);
-}
-
-/* Mobile Responsiveness Overhaul */
+/* Responsive Overrides */
 @media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-        height: 100vh;
-        height: -webkit-fill-available;
-        zoom: 1.0 !important;
+    .container { 
+        flex-direction: column; 
+        zoom: 0.6; /* Super-compact mode for mobile */
+        height: 166.66vh !important; /* Compansate for 0.6 zoom (100 / 0.6) */
+        width: 166.66vw !important;
+    }
+    .mainContent { 
+        height: 100%; 
+        width: 100%; 
+        overflow: hidden; 
+        display: flex; 
+        flex-direction: column; 
     }
     
-    .mainContent {
-        height: 100vh;
-        height: -webkit-fill-available;
-        width: 100vw;
-        overflow-y: auto;
-    }
-    
-    .header {
-        height: auto;
-        min-height: 50px;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 8px 12px;
+    .editorArea, .verticalSplitWrapper { 
+        flex-direction: column !important; 
+        padding: 0 !important; 
+        gap: 0 !important; 
+        position: relative;
+        flex: 0 0 50vh !important; /* Match playerSection height to eliminate gap */
+        height: 50vh !important;
+        min-height: 50vh !important;
     }
 
-    .projectNameText {
-        font-size: 1rem;
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    /* Stack everything on mobile regardless of chosen layout */
-    .editorArea, .verticalSplitWrapper {
+    .playerSection, .verticalPlayerSection { 
+        width: 100% !important; 
+        height: 50vh !important; /* Increased height to 50vh to lower the boundary */
+        flex: 0 0 50vh !important; 
+        order: -1; 
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        display: flex !important;
         flex-direction: column !important;
-        overflow-y: visible !important;
-        gap: 0 !important;
-        padding: 0 !important;
+        justify-content: flex-end !important; /* Push the VideoPlayer component to the bottom */
     }
 
-    .playerSection, .verticalPlayerSection {
-        width: 100% !important;
-        min-width: 0 !important;
-        height: 220px !important;
-        flex: 0 0 220px !important;
+    .rightPanel { 
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: auto; /* Anchor to right */
+        width: 80% !important; /* Take 80% of width for the drawer */
+        height: 100% !important;
+        min-width: 0;
+        z-index: 1000;
+        background: rgba(10, 10, 10, 0.98);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid var(--border-color);
         border-radius: 0;
-        border: none;
-        border-bottom: 1px solid var(--border-color);
-        order: -1; /* Always top on mobile */
+        transform: translateX(100%); /* Slide from right */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
     }
 
-    .rightPanel, .verticalPanel {
-        width: 100% !important;
-        min-width: 0 !important;
+    .rightPanel:not(.collapsed) {
+        transform: translateX(0); /* Open */
+    }
+
+    .rightPanel.collapsed {
+        transform: translateX(100%); /* Fully hidden when closed */
+    }
+
+    .timelineSection { 
+        flex: 1; /* Timeline takes all remaining space */
         height: auto !important;
-        flex: 1 !important;
-        border-radius: 0;
+        min-height: 0 !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        border-top: 1px solid var(--border-color); /* Single thin line for separation */
+    }
+
+    .playerResizeHandle, .playerCollapseToggle { display: none !important; }
+    
+    .collapseToggle {
+        display: flex !important; /* Force visible on mobile */
+        position: absolute;
+        left: -44px; /* Stick out to the left of the drawer */
+        top: 80px; /* Position below header */
+        width: 44px;
+        height: 44px;
+        background: var(--accent-primary);
+        color: var(--bg-primary);
         border: none;
-        border-bottom: 1px solid var(--border-color);
+        border-radius: 12px 0 0 12px;
+        box-shadow: -4px 0 15px rgba(0,0,0,0.3);
+        z-index: 1002;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
     }
 
-    .timelineSection, .verticalTimelineSection {
-        height: 180px !important;
-        min-height: 180px !important;
-        border-radius: 0;
-        position: sticky;
-        bottom: 30px; /* Above StatusBar */
-        z-index: 50;
-    }
-
-    .resizeDivider {
-        height: 15px; /* Bigger touch target */
-    }
-
-    .panelTabs {
+    .rightPanel.collapsed .collapseToggle {
+        left: -44px; /* Keep it visible even when drawer is hidden */
         background: var(--bg-secondary);
+        color: var(--accent-primary);
+    }
+
+    .layoutToggleBtn { display: none !important; } /* Hide vertical toggle on mobile */
+
+    .statusBar {
+        height: 30px !important;
+        padding: 0 10px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    /* On mobile, make tabs sticky to the top of the overlay */
+    .panelTabs {
         position: sticky;
         top: 0;
-        z-index: 20;
+        z-index: 1001;
+        background: var(--bg-secondary);
     }
+}
 
-    .layoutToggleBtn, .layoutToggleBtnSmall {
-        display: none; /* Layout switching is redundant on small screens */
-    }
+.isResizing .playerSection, .isResizing .rightPanel, .isResizing .verticalLeftStack {
+    transition: none !important;
 }

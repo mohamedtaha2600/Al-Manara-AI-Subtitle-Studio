@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { getApiUrl } from '@/utils/config'
+import { Captions, Scissors, Sparkles } from 'lucide-react'
 import styles from './StatusBar.module.css'
 
 
@@ -17,6 +18,8 @@ interface StatusBarProps {
 
 export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
     const {
+        activePanel,
+        setActivePanel,
         isTranscribing,
         progress,
         statusMessage,
@@ -162,31 +165,60 @@ export default function StatusBar({ onModelStatusChange }: StatusBarProps) {
                 ) : null}
             </div>
 
-            {/* Center: Progress */}
-            {isTranscribing && (
-                <div className={styles.centerSection}>
-                    <div className={styles.progressContainer}>
-                        <div
-                            className={styles.progressFill}
-                            style={{
-                                width: `${progress}%`,
-                                background: getProgressColor()
-                            }}
-                        />
+            {/* Center: Progress / Mobile Nav */}
+            <div className={styles.centerSection}>
+                {isTranscribing ? (
+                    <>
+                        <div className={styles.progressContainer}>
+                            <div
+                                className={styles.progressFill}
+                                style={{
+                                    width: `${progress}%`,
+                                    background: getProgressColor()
+                                }}
+                            />
+                        </div>
+                        <span className={styles.progressLabel}>
+                            {getProgressLabel()} {progress.toFixed(0)}%
+                        </span>
+                    </>
+                ) : (
+                    /* Mobile Navigation Items - Visible only on mobile via CSS */
+                    <div className={styles.mobileNav}>
+                        <button 
+                            className={`${styles.mobileNavItem} ${activePanel === 'subtitles' ? styles.active : ''}`}
+                            onClick={() => setActivePanel('subtitles')}
+                        >
+                            <Captions size={20} />
+                            <span>ترجمة</span>
+                        </button>
+                        <button 
+                            className={`${styles.mobileNavItem} ${activePanel === 'silence' ? styles.active : ''}`}
+                            onClick={() => setActivePanel('silence')}
+                        >
+                            <Scissors size={20} />
+                            <span>قص</span>
+                        </button>
+                        <button 
+                            className={`${styles.mobileNavItem} ${activePanel === 'enhance' ? styles.active : ''} ${styles.comingSoon}`}
+                            disabled
+                        >
+                            <Sparkles size={20} />
+                            <span>تحسين</span>
+                        </button>
                     </div>
-                    <span className={styles.progressLabel}>
-                        {getProgressLabel()} {progress.toFixed(0)}%
-                    </span>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Right: Stats */}
             <div className={styles.rightSection}>
-                {videoFile && (
-                    <span className={styles.stat}>
-                        🎬 {videoFile.name.slice(0, 20)}...
-                    </span>
-                )}
+                <div className={styles.desktopStats}>
+                    {videoFile && (
+                        <span className={styles.stat}>
+                            🎬 {videoFile.name.slice(0, 15)}...
+                        </span>
+                    )}
+                </div>
 
                 <div className={styles.divider} />
 

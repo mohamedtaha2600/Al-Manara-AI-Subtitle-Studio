@@ -41,6 +41,7 @@
     display: flex;
     flex-direction: column;
     background-color: var(--timeline-bg);
+    direction: ltr !important; /* Force LTR for timeline engine coordinates */
 }
 
 .timelineBody {
@@ -74,6 +75,7 @@
     pointer-events: none;
     /* Crucial: Let clicks through to the ruler/editor */
     box-sizing: border-box;
+    direction: rtl; /* Icons and text in sidebar should be RTL */
 }
 
 .sidebarHeader {
@@ -83,12 +85,13 @@
     border-bottom: 1px solid #333;
     display: flex;
     align-items: center;
-    padding-left: 12px;
+    justify-content: center;
     font-size: 11px;
     font-weight: 600;
     color: #888;
     text-transform: uppercase;
     pointer-events: auto;
+    direction: ltr; /* TRACKS is English */
 }
 
 .sidebarContent {
@@ -110,6 +113,7 @@
     box-sizing: border-box;
     height: 100%;
     transition: background 0.2s;
+    direction: rtl; /* Ensure controls and labels are RTL */
 }
 
 .selectedTrackHeader {

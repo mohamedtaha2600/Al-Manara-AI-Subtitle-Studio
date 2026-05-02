@@ -267,25 +267,17 @@ export default function VideoPlayer() {
         }
     }, [isDraggingSubtitle, setStyle, tracks])
 
-    // Mouse Wheel Zoom
+    // Mouse Wheel Zoom - Center Focused
     const handleWheel = useCallback((e: React.WheelEvent) => {
         e.preventDefault()
         const delta = e.deltaY > 0 ? -0.1 : 0.1
         const newZoom = Math.min(Math.max(zoom + delta, 0.5), 4)
 
         if (newZoom !== zoom) {
-            const rect = videoInnerRef.current?.getBoundingClientRect()
-            if (rect) {
-                const mouseX = e.clientX - rect.left - rect.width / 2
-                const mouseY = e.clientY - rect.top - rect.height / 2
-                const scale = newZoom / zoom
-                const newPanX = panX * scale + mouseX * (1 - scale)
-                const newPanY = panY * scale + mouseY * (1 - scale)
-                updatePan(newPanX, newPanY)
-            }
+            // Standard zoom to center logic (No pan shift for maximum stability)
             setZoom(newZoom)
         }
-    }, [zoom, panX, panY, setZoom, updatePan])
+    }, [zoom, setZoom])
 
     // Pan Handlers
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -380,7 +372,15 @@ export default function VideoPlayer() {
                         transition: isPanning ? 'none' : 'transform 0.1s ease-out'
                     }}
                 >
-                    {videoFile?.type === 'audio' ? (
+                    {!videoFile ? (
+                        /* Professional Black Monitor Placeholder */
+                        <div className={styles.blackMonitor}>
+                             <div className={styles.monitorContent}>
+                                <Video size={48} className={styles.monitorIcon} />
+                             </div>
+                             <video ref={videoRef} src="" className={styles.video} style={{ display: 'none' }} />
+                        </div>
+                    ) : videoFile.type === 'audio' ? (
                         <div className={styles.audioPlaceholder}>
                             <Music size={80} className={styles.audioIcon} />
                             <div className={styles.audioTitle}>{videoFile.name}</div>

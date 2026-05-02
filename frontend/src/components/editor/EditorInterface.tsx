@@ -60,6 +60,60 @@ export default function EditorInterface() {
         setEditorLayout
     } = useProjectStore()
 
+    // Player Resize/Collapse State
+    const [playerWidth, setPlayerWidth] = useState(800) // Fallback default
+    const [isPlayerResizing, setIsPlayerResizing] = useState(false)
+    const [startPlayerResizeData, setStartPlayerResizeData] = useState<{ mouseX: number; startWidth: number } | null>(null)
+    const [isPlayerCollapsed, setIsPlayerCollapsed] = useState(false)
+
+    // Set initial 70% split on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const sidebarWidth = 60 // Estimate or dynamic
+            const availableWidth = window.innerWidth - sidebarWidth
+            setPlayerWidth(Math.floor(availableWidth * 0.7))
+        }
+    }, [])
+
+    // Handle Player Resizing
+    const handlePlayerResizeStart = (e: React.MouseEvent) => {
+        e.preventDefault()
+        setIsPlayerResizing(true)
+        setStartPlayerResizeData({
+            mouseX: e.clientX,
+            startWidth: playerWidth
+        })
+    }
+
+    const handlePlayerResizeMove = useCallback((e: MouseEvent) => {
+        if (!isPlayerResizing || !startPlayerResizeData) return
+        const zoomFactor = 0.9
+        // In RTL, dragging LEFT (decreasing clientX) INCREASES the player width on the LEFT side?
+        // Let's check: If player is on LEFT. Mouse moves RIGHT (clientX increase) -> player width decreases.
+        // deltaX = e.clientX - start.mouseX
+        // newWidth = startWidth - deltaX / zoomFactor
+        const deltaX = (e.clientX - startPlayerResizeData.mouseX) / zoomFactor
+        const newWidth = startPlayerResizeData.startWidth + deltaX
+        const clampedWidth = Math.max(100, Math.min(newWidth, window.innerWidth * 0.7))
+        setPlayerWidth(clampedWidth)
+    }, [isPlayerResizing, startPlayerResizeData])
+
+    const handlePlayerResizeEnd = useCallback(() => {
+        setIsPlayerResizing(false)
+        setStartPlayerResizeData(null)
+    }, [])
+
+    useEffect(() => {
+        if (isPlayerResizing) {
+            window.addEventListener('mousemove', handlePlayerResizeMove)
+            window.addEventListener('mouseup', handlePlayerResizeEnd)
+        }
+        return () => {
+            window.removeEventListener('mousemove', handlePlayerResizeMove)
+            window.removeEventListener('mouseup', handlePlayerResizeEnd)
+        }
+    }, [isPlayerResizing, handlePlayerResizeMove, handlePlayerResizeEnd])
+
     // Check if we're in silence mode
     const isSilenceMode = activePanel === 'silence'
 
@@ -186,7 +240,7 @@ export default function EditorInterface() {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={`${styles.container} ${(isResizing || isPlayerResizing) ? styles.isResizing : ''}`}>
             <Sidebar />
             <main className={`${styles.mainContent} ${editorLayout === 'vertical' ? styles.verticalMode : ''}`}>
                 {editorLayout === 'vertical' ? (
@@ -277,7 +331,20 @@ export default function EditorInterface() {
                         </div>
 
                         {/* Right Side: Tall Preview */}
-                        <section className={styles.verticalPlayerSection}>
+                        <section 
+                            className={`${styles.verticalPlayerSection} ${isPlayerCollapsed ? styles.playerCollapsed : ''}`}
+                            style={{ width: isPlayerCollapsed ? 0 : playerWidth, flex: 'none' }}
+                        >
+                            <div 
+                                className={`${styles.playerResizeHandle} ${isPlayerResizing ? styles.dragging : ''}`}
+                                onMouseDown={handlePlayerResizeStart}
+                            />
+                            <button 
+                                className={styles.playerCollapseToggle}
+                                onClick={() => setIsPlayerCollapsed(!isPlayerCollapsed)}
+                            >
+                                {isPlayerCollapsed ? <ChevronRight /> : <ChevronLeft />}
+                            </button>
                             <VideoPlayer />
                             <div className={styles.verticalControlsOverlay}>
                                 <button 
@@ -344,7 +411,7 @@ export default function EditorInterface() {
                         </header>
 
                         <div className={styles.editorArea}>
-                            <aside className={`${styles.rightPanel} ${isRightPanelCollapsed ? styles.collapsed : ''}`}>
+                            <aside className={`${styles.rightPanel} ${isRightPanelCollapsed ? styles.collapsed : ''} ${isPlayerCollapsed ? styles.playerHiddenMode : ''}`}>
                                 <button 
                                     className={styles.collapseToggle} 
                                     onClick={() => setIsRightPanelCollapsed(!isRightPanelCollapsed)}
@@ -378,17 +445,21 @@ export default function EditorInterface() {
                                 </div>
                             </aside>
 
-                            <section className={styles.playerSection}>
-                                {videoFile ? (
-                                    <VideoPlayer />
-                                ) : (
-                                    <div className={styles.emptyPlayer} onClick={() => setUploadModalOpen(true)}>
-                                        <UploadIcon />
-                                        <h2>ارفع ملف فيديو أو صوت</h2>
-                                        <p>اسحب الملف هنا أو اضغط للاختيار</p>
-                                        <span className={styles.formats}>MP4, MKV, AVI, MP3, WAV</span>
-                                    </div>
-                                )}
+                            <section 
+                                className={`${styles.playerSection} ${isPlayerCollapsed ? styles.playerCollapsed : ''}`}
+                                style={{ width: isPlayerCollapsed ? 0 : playerWidth, flex: 'none' }}
+                            >
+                                <div 
+                                    className={`${styles.playerResizeHandle} ${isPlayerResizing ? styles.dragging : ''}`}
+                                    onMouseDown={handlePlayerResizeStart}
+                                />
+                                <button 
+                                    className={styles.playerCollapseToggle}
+                                    onClick={() => setIsPlayerCollapsed(!isPlayerCollapsed)}
+                                >
+                                    {isPlayerCollapsed ? <ChevronRight /> : <ChevronLeft />}
+                                </button>
+                                <VideoPlayer />
                             </section>
                         </div>
 

@@ -172,3 +172,46 @@
 /* Controls Styles moved to VideoPlayerControls.module.css */
 
 /* Stacked Subtitle Styles moved to VideoPlayerOverlay.module.css */
+
+/* Professional Black Monitor */
+.blackMonitor {
+    width: 640px;
+    height: 360px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), inset 0 0 50px rgba(255,255,255,0.02);
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.monitorContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0.2;
+}
+
+.monitorIcon {
+    color: white;
+}
+
+/* Ensure VideoPlayer container takes full space for empty monitor */
+.container:not(.fullscreen) {
+    min-height: 250px;
+}
+
+@media (max-width: 768px) {
+    .blackMonitor {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+    .videoWrapper {
+        align-items: flex-end !important; /* Anchor video to the bottom to touch timeline */
+        padding-bottom: 0;
+    }
+}

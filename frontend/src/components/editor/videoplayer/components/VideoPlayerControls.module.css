@@ -81,18 +81,27 @@
     justify-content: space-between;
 }
 
-.leftControls,
-.rightControls,
+.leftControls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex: 1;
+    justify-content: flex-start;
+}
+
+.rightControls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex: 1;
+    justify-content: flex-end;
+}
+
 .centerControls {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-}
-
-.centerControls {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    flex: 0 0 auto;
 }
 
 .controlBtn {

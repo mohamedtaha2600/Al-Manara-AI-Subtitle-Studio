@@ -472,7 +472,7 @@ export default function VisTimelineWrapper() {
             <div className={styles.timelineBody} ref={containerRef}>
                 {/* 1. Sidebar (Absolute Overlay) */}
                 <div className={styles.sidebar}>
-                    <div className={styles.sidebarHeader}>Tracks</div>
+                    <div className={styles.sidebarHeader}>TRACKS</div>
                     <div className={styles.sidebarContent}>
                         <div style={{ transform: `translateY(-${scrollTop}px)` }}>
                             {editorData.map(row => (
