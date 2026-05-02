@@ -9,7 +9,7 @@ import { useState, useRef, useCallback } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import { parseSRT, parseVTT } from '@/utils/subtitleUtils'
 import styles from './ImportModal.module.css'
-import { API_BASE_URL } from '@/utils/config'
+import { API_BASE_URL, getApiUrl } from '@/utils/config'
 
 
 
@@ -225,7 +225,11 @@ export default function ImportModal() {
 
                 // Free Positioning
                 x: 0,
-                y: 0
+                y: 0,
+
+                // Added missing properties
+                showPunctuation: true,
+                showDiacritics: true
             }
 
             const track = {

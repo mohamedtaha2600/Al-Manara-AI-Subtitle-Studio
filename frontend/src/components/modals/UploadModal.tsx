@@ -8,7 +8,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { useProjectStore } from '@/store/useProjectStore'
 import styles from './UploadModal.module.css'
-import { API_BASE_URL } from '@/utils/config'
+import { API_BASE_URL, getApiUrl } from '@/utils/config'
 
 
 
