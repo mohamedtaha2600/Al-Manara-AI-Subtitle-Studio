@@ -42,6 +42,11 @@ export default function SettingsModal() {
     const [availableModels, setAvailableModels] = useState<ModelInfo[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [checkingReqs, setCheckingReqs] = useState(false)
+    const [isOnline, setIsOnline] = useState(false)
+
+    useEffect(() => {
+        setIsOnline(window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
+    }, [])
 
     useEffect(() => {
         if (isSettingsModalOpen && activeTab === 'general') {
@@ -89,10 +94,15 @@ export default function SettingsModal() {
 
                 {/* Header */}
                 <div className={styles.header}>
-                    <h2>
-                        <SettingsIcon />
-                        الإعدادات - Settings
-                    </h2>
+                    <div className={styles.headerTitle}>
+                        <h2>
+                            <SettingsIcon />
+                            الإعدادات - Settings
+                        </h2>
+                        <div className={`${styles.envBadge} ${isOnline ? styles.onlineBadge : styles.localBadge}`}>
+                            {isOnline ? 'Cloud Engine (أونلاين)' : 'Local Mode (محلي)' }
+                        </div>
+                    </div>
                     <button className={styles.closeBtn} onClick={handleClose}>
                         <CloseIcon />
                     </button>
@@ -134,15 +144,36 @@ export default function SettingsModal() {
                         <div className={styles.section}>
                             <h3 className={styles.sectionTitle}>AI Model Selection</h3>
                             <p className={styles.optionDesc}>
-                                اختر حجم النموذج المناسب. النماذج الأكبر أدق لكنها أبطأ.
+                                {isOnline 
+                                    ? "يتم استخدام نماذج سحابة المنارة الاحترافية تلقائياً."
+                                    : "اختر حجم النموذج المناسب لجهازك. النماذج الأكبر أدق لكنها أبطأ."}
                             </p>
+
+                            {!isOnline && (
+                                <div className={styles.localGuide}>
+                                    <div className={styles.guideHeader}>
+                                        <Info size={14} />
+                                        <span>دليل التثبيت المحلي (Local Setup)</span>
+                                    </div>
+                                    <p>للتشغيل محلياً: قم بتحميل الموديلات من HuggingFace وضعها في مجلد <code>models/</code> داخل الباك إند.</p>
+                                    <a href="https://github.com/mohamedtaha2600/Al-Manara-AI-Subtitle-Studio" target="_blank" className={styles.guideLink}>
+                                        شاهد تعليمات GitHub
+                                    </a>
+                                </div>
+                            )}
 
                             {isLoading ? (
                                 <div style={{ color: '#aaa', padding: '20px', textAlign: 'center' }}>Loading...</div>
                             ) : (
                                 <div style={{ display: 'grid', gap: '10px' }}>
-                                    {availableModels.map(model => {
-                                        const isInstalled = installedModels.includes(model.id)
+                                    {(availableModels.length > 0 ? availableModels : [
+                                        { id: 'tiny', name: 'Tiny (~75MB)', desc: 'Fastest, low accuracy' },
+                                        { id: 'base', name: 'Base (~150MB)', desc: 'Fast, basic accuracy' },
+                                        { id: 'small', name: 'Small (~500MB)', desc: 'Balanced' },
+                                        { id: 'medium', name: 'Medium (~1.5GB)', desc: 'Recommended for Arabic' },
+                                        { id: 'large-v3', name: 'Large V3 (~3GB)', desc: 'Best accuracy, slow' }
+                                    ]).map(model => {
+                                        const isInstalled = isOnline || installedModels.includes(model.id)
                                         const isSelected = preferredModel === model.id
 
                                         return (
@@ -163,7 +194,7 @@ export default function SettingsModal() {
                                                     <span className={styles.optionDesc}>{model.desc}</span>
                                                 </div>
                                                 <div style={{ fontSize: '0.7rem', color: isInstalled ? '#22c55e' : '#64748b' }}>
-                                                    {isInstalled ? 'INSTALLED' : 'NOT INSTALLED'}
+                                                    {isOnline ? 'CLOUD ACTIVE' : (isInstalled ? 'INSTALLED' : 'NOT FOUND')}
                                                 </div>
                                             </div>
                                         )
